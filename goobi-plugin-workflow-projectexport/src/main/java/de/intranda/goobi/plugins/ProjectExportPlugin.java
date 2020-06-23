@@ -2,10 +2,14 @@ package de.intranda.goobi.plugins;
 
 import java.util.List;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang.StringUtils;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
+import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.persistence.managers.ProjectManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,16 +39,14 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     @Getter
     private String gui = "/uii/plugin_workflow_projectexport.xhtml";
 
-
     @Getter
-    private String selectedProjectName;
+    private String projectName;
 
     @Setter
     private List<String> allProjectNames = null;
 
-
-
-
+    @Getter
+    private String finishStepName;
 
 
     public List<String> getAllProjectNames() {
@@ -54,16 +56,35 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         return allProjectNames;
     }
 
-
-
-    public void setSelectedProjectName(String selectedProjectName) {
-        if (StringUtils.isBlank(this.selectedProjectName) || !this.selectedProjectName.equals(selectedProjectName)) {
-            this.selectedProjectName = selectedProjectName;
-            getConfig();
+    public void setProjectName(String selectedProjectName) {
+        if (StringUtils.isBlank(this.projectName) || !this.projectName.equals(selectedProjectName)) {
+            this.projectName = selectedProjectName;
+            readConfiguration(projectName);
         }
     }
 
-    private void getConfig() {
+    private void readConfiguration(String projectName) {
+
+        HierarchicalConfiguration config = null;
+        XMLConfiguration xmlConfig = ConfigPlugins.getPluginConfig(title);
+        xmlConfig.setExpressionEngine(new XPathExpressionEngine());
+
+        // order of configuration is:
+        //        1.) project name and step name matches
+        //        2.) step name matches and project is *
+        //        3.) project name matches and step name is *
+        //        4.) project name and step name are *
+        try {
+            config = xmlConfig.configurationAt("//config[./project = '" + projectName + "']");
+        } catch (IllegalArgumentException e) {
+            try {
+                config = xmlConfig.configurationAt("//config[./project = '*']");
+            } catch (IllegalArgumentException e1) {
+
+            }
+        }
+
+        finishStepName = config.getString("/finishedStepName");
 
     }
 

@@ -1,6 +1,0 @@
-<config_plugin>
-    <config>
-        <project>SampleProject</project>
-        <step>*</step>
-    </config>
-</config_plugin>

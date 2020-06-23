@@ -1,5 +1,6 @@
 package de.intranda.goobi.plugins;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
@@ -51,7 +52,7 @@ public class ProjectExportPluginTest {
 
         XMLConfiguration config = getConfig();
         PowerMock.mockStatic(ConfigPlugins.class);
-        EasyMock.expect(ConfigPlugins.getPluginConfig(EasyMock.anyString())).andReturn(config).anyTimes();
+        EasyMock.expect(ConfigPlugins.getPluginConfig("intranda_workflow_projectexport")).andReturn(config).anyTimes();
         PowerMock.replay(ConfigPlugins.class);
 
         PowerMock.mockStatic(ConfigurationHelper.class);
@@ -129,7 +130,14 @@ public class ProjectExportPluginTest {
         assertNotNull(plugin);
     }
 
+    @Test
+    public void testConfigurationFile() {
+        ProjectExportPlugin plugin = new ProjectExportPlugin();
+        plugin.setProjectName("SampleProject");
 
+        assertEquals("Export with PREMIS data", plugin.getFinishStepName());
+
+    }
 
 
     public Process getProcess() {
@@ -174,7 +182,7 @@ public class ProjectExportPluginTest {
     }
 
     private XMLConfiguration getConfig() throws Exception {
-        XMLConfiguration config = new XMLConfiguration("src/test/resources/plugin_intranda_workflow_projectexport.xml");
+        XMLConfiguration config = new XMLConfiguration("plugin_intranda_workflow_projectexport.xml");
         config.setListDelimiter('&');
         config.setReloadingStrategy(new FileChangedReloadingStrategy());
         return config;

@@ -1,0 +1,43 @@
+<config_plugin>
+    <config>
+        <project>*</project>
+        <step>*</step>
+        
+        <!-- delete all data within the images/ folder -->
+        <deleteAllContentFromImageDirectory>false</deleteAllContentFromImageDirectory>
+        
+        <!-- OR delete a single image folder - this is only used if deleteAllContentFromImageDirectory is set to false -->
+        <deleteMediaDirectory>false</deleteMediaDirectory>
+        <deleteMasterDirectory>false</deleteMasterDirectory>
+        <deleteSourceDirectory>false</deleteSourceDirectory>
+        <deleteFallbackDirectory>false</deleteFallbackDirectory>
+        
+        <!-- delete all data within the thumbs/ folder -->
+        <deleteAllContentFromThumbsDirectory>false</deleteAllContentFromThumbsDirectory>
+        
+        <!-- delete all data within the ocr/ folder -->
+        <deleteAllContentFromOcrDirectory>false</deleteAllContentFromOcrDirectory>
+        
+        <!-- OR delete a single ocr folder - this is only used if deleteAllContentFromOcrDirectory is set to false -->
+        <deleteAltoDirectory>false</deleteAltoDirectory>
+        <deletePdfDirectory>false</deletePdfDirectory>
+        <deleteTxtDirectory>false</deleteTxtDirectory>
+        <deleteWcDirectory>false</deleteWcDirectory>
+        <deleteXmlDirectory>false</deleteXmlDirectory>
+        
+        <!-- delete export folder -->
+        <deleteExportDirectory>false</deleteExportDirectory>
+        
+        <!-- delete import folder -->
+        <deleteImportDirectory>false</deleteImportDirectory>
+        
+        <!-- delete processlog folder -->
+        <deleteProcesslogDirectory>false</deleteProcesslogDirectory>
+        
+        <!-- delete metadata -->
+        <deleteMetadataFiles>false</deleteMetadataFiles>
+        
+        <!-- deactivate all unfinished tasks -->
+        <deactivateProcess>false</deactivateProcess>
+    </config>
+</config_plugin>

@@ -1,0 +1,9 @@
+<project name="goobi-plugin-workflow-projectexport" default="devbuild">
+	<target name="devbuild">
+		<exec executable="mvn">
+			<arg value="package"/>
+		</exec>
+		<copy file="module-main/target/plugin_intranda_workflow_projectexport.jar" todir="/opt/digiverso/goobi/plugins/workflow/"/>
+		<copy file="module-gui/target/plugin_intranda_workflow_projectexport-GUI.jar" todir="/opt/digiverso/goobi/plugins/GUI/"/>
+	</target>
+</project>

@@ -1,0 +1,66 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://myfaces.apache.org/tomahawk"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:p="http://primefaces.org/ui">
+
+    <composite:interface>
+    </composite:interface>
+
+    <composite:implementation>
+
+
+
+        <h:outputText
+            styleClass="alert alert-danger block margin-top-most"
+            value="#{msgs.noAccessAllowed} Plugin_Goobi_ProjectExport"
+            rendered="#{!LoginForm.hasRole('Plugin_Goobi_ProjectExport')}" />
+
+        <h:panelGroup rendered="#{LoginForm.hasRole('Plugin_Goobi_ProjectExport')}">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="box box-color box-bordered lightgrey">
+                        <div class="box-title">
+                            <h3>
+                                <i class="fa fa-plug"></i>
+                                <h:outputText value="#{msgs[NavigationForm.workflowPlugin.title]}" />
+                            </h3>
+                        </div>
+                        <div class="box-content">
+                            <h:form>
+                                <div
+                                    class="row"
+                                    style="padding: 15px;">
+                                    <intranda:formInputDropDown
+                                        id="project"
+                                        label="#{msgs.projekt}"
+                                        field="#{NavigationForm.workflowPlugin.selectedProjectName}"
+                                        help=""
+                                        name="project"
+                                        selectItems="#{NavigationForm.workflowPlugin.allProjectNames}"
+                                        fieldStyle="form-control"
+                                        required="true" />
+
+
+                                </div>
+
+
+                            </h:form>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h:panelGroup>
+
+
+    </composite:implementation>
+
+</ui:composition>

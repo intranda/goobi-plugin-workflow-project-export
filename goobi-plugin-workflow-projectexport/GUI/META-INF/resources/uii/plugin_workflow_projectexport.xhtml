@@ -32,19 +32,31 @@
                             </h3>
                         </div>
                         <div class="box-content">
-                            <h:form>
+                            <h:form id="projectExportForm">
+
+<h:panelGroup rendered="#{!NavigationForm.workflowPlugin.exportAllowed}">
+<h:outputText value="#{NavigationForm.workflowPlugin.projectValidationError}" styleClass="alert alert-danger"/>
+
+</h:panelGroup>
+
                                 <div
                                     class="row"
                                     style="padding: 15px;">
-                                    <intranda:formInputDropDown
-                                        id="project"
+                                    
+                                    <intranda:formInputDropDownAjax                                       
+                                        ajaxEvent="change"
+                                        ajaxRender="projectExportForm"
                                         label="#{msgs.projekt}"
                                         field="#{NavigationForm.workflowPlugin.projectName}"
                                         help=""
                                         name="project"
                                         selectItems="#{NavigationForm.workflowPlugin.allProjectNames}"
                                         fieldStyle="form-control"
-                                        required="true" />
+                                        required="false" 
+                                        itemValue="#{var}"
+                                        itemLabel="#{var}"
+                                        />
+
 
 
                                 </div>

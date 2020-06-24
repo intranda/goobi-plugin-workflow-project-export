@@ -1,15 +1,20 @@
 package de.intranda.goobi.plugins;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.lang.StringUtils;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.helper.Helper;
+import de.sub.goobi.persistence.managers.MySQLHelper;
 import de.sub.goobi.persistence.managers.ProjectManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,7 +52,11 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
     @Getter
     private String finishStepName;
+    @Getter
+    private boolean exportAllowed = false;
 
+    @Getter
+    private String projectValidationError = null;
 
     public List<String> getAllProjectNames() {
         if (allProjectNames == null) {
@@ -60,7 +69,52 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         if (StringUtils.isBlank(this.projectName) || !this.projectName.equals(selectedProjectName)) {
             this.projectName = selectedProjectName;
             readConfiguration(projectName);
+
+            // check if all processes of the project have reached the configured task:
+            StringBuilder query = new StringBuilder();
+            query.append("SELECT COUNT(*) ");
+            query.append("FROM prozesse WHERE ");
+            query.append("projekteId = (SELECT projekteID FROM projekte WHERE titel = ?) ");
+            query.append("AND prozesseID NOT IN ( ");
+            query.append("SELECT prozesseId FROM schritte WHERE titel = ? AND Bearbeitungsstatus = 3) ");
+
+            int numberOfTasks = getNumberOfUnfinishedTasks();
+            if (numberOfTasks == 0) {
+                exportAllowed = true;
+                projectValidationError= null;
+            } else {
+                exportAllowed = false;
+                projectValidationError= "The project '" + projectName + "' has " + numberOfTasks +" unfinished processes";
+                Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
+            }
         }
+    }
+
+    private int getNumberOfUnfinishedTasks() {
+        Connection connection = null;
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(*) ");
+        query.append("FROM prozesse WHERE ");
+        query.append("projekteId = (SELECT projekteID FROM projekte WHERE titel = ?) ");
+        query.append("AND prozesseID NOT IN ( ");
+        query.append("SELECT prozesseId FROM schritte WHERE titel = ? AND Bearbeitungsstatus = 3) ");
+        try {
+            connection = MySQLHelper.getInstance().getConnection();
+            int currentValue =
+                    new QueryRunner().query(connection, query.toString(), MySQLHelper.resultSetToIntegerHandler, projectName, finishStepName);
+            return currentValue;
+        } catch (SQLException e) {
+            log.error(e);
+        } finally {
+            if (connection != null) {
+                try {
+                    MySQLHelper.closeConnection(connection);
+                } catch (SQLException e) {
+                    log.error(e);
+                }
+            }
+        }
+        return 0;
     }
 
     private void readConfiguration(String projectName) {
@@ -83,8 +137,11 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
             }
         }
-
         finishStepName = config.getString("/finishedStepName");
+    }
+
+
+    public void prepareExport() {
 
     }
 

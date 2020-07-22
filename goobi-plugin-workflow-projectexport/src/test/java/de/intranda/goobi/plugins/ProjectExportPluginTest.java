@@ -16,8 +16,8 @@ import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
-import org.apache.commons.dbutils.QueryRunner;
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.goobi.beans.Process;
 import org.goobi.beans.Project;
 import org.goobi.beans.Step;
@@ -34,19 +34,19 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
+import de.sub.goobi.helper.CloseStepHelper;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.enums.StepStatus;
 import de.sub.goobi.metadaten.MetadatenHelper;
-import de.sub.goobi.persistence.managers.MySQLHelper;
 import de.sub.goobi.persistence.managers.ProcessManager;
-import de.sub.goobi.persistence.managers.PropertyManager;
 import de.sub.goobi.persistence.managers.StepManager;
 import ugh.dl.Fileformat;
 import ugh.dl.Prefs;
 import ugh.fileformats.mets.MetsMods;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MetadatenHelper.class,VariableReplacer.class, ConfigPlugins.class, StepManager.class, ConfigurationHelper.class, ProcessManager.class, PropertyManager.class, MySQLHelper.class, QueryRunner.class})
+@PrepareForTest({ MetadatenHelper.class, VariableReplacer.class, ConfigPlugins.class, StepManager.class, ConfigurationHelper.class,
+    ProcessManager.class, CloseStepHelper.class })
 @PowerMockIgnore({ "javax.management.*" })
 public class ProjectExportPluginTest {
 
@@ -55,7 +55,6 @@ public class ProjectExportPluginTest {
     private File processDirectory;
     private File metadataDirectory;
     private Process process;
-    private String processMediaFolder;
 
     @Before
     public void setUp() throws Exception {
@@ -69,15 +68,11 @@ public class ProjectExportPluginTest {
         Path metaTarget = Paths.get(processDirectory.getAbsolutePath(), "meta.xml");
         Files.copy(metaSource, metaTarget);
 
-
         // copy ruleset
 
         XMLConfiguration config = getConfig();
         PowerMock.mockStatic(ConfigPlugins.class);
         EasyMock.expect(ConfigPlugins.getPluginConfig("intranda_workflow_projectexport")).andReturn(config).anyTimes();
-
-
-
 
         PowerMock.mockStatic(ConfigurationHelper.class);
         ConfigurationHelper configurationHelper = EasyMock.createMock(ConfigurationHelper.class);
@@ -97,23 +92,25 @@ public class ProjectExportPluginTest {
         PowerMock.mockStatic(VariableReplacer.class);
         EasyMock.expect(VariableReplacer.simpleReplace(EasyMock.anyString(), EasyMock.anyObject())).andReturn("fixture_media");
         PowerMock.replay(VariableReplacer.class);
-        //        PowerMock.mockStatic( MySQLHelper.class);
 
-        //        Connection connection = EasyMock.createNiceMock(Connection.class);
-        //        MySQLHelper mysqlHelper = EasyMock.createMock(MySQLHelper.class);
-        //        EasyMock.replay(connection);
-        //
-        //        EasyMock.expect(MySQLHelper.getInstance()).andReturn(mysqlHelper).anyTimes();
-        //        EasyMock.expect(mysqlHelper.getConnection()).andReturn(connection).anyTimes();
-        //        mysqlHelper.closeConnection(connection);
-        //
-        //        QueryRunner runner = EasyMock.createMock(QueryRunner.class);
-        //        PowerMock.expectNew(QueryRunner.class).andReturn(runner).anyTimes();
-        //        List<Integer> ids = new ArrayList<>();
-        //        ids.add(1);
-        //        EasyMock.expect(runner.query(connection, EasyMock.anyString(), MySQLHelper.resultSetToIntegerHandler,EasyMock.anyString(), EasyMock.anyString())).andReturn(0).anyTimes();
+        PowerMock.mockStatic(CloseStepHelper.class);
+        EasyMock.expect(CloseStepHelper.closeStep(EasyMock.anyObject(), EasyMock.anyObject())).andAnswer(new IAnswer<Boolean>() {
 
-        //        EasyMock.expect(runner.query(connection, EasyMock.anyString(), MySQLHelper.resultSetToIntegerListHandler,"SampleProject")).andReturn(ids).anyTimes();
+            @Override
+            public Boolean answer() throws Throwable {
+                for (Step step : process.getSchritte()) {
+                    if (step.getTitel().equals("test step to close")) {
+                        step.setBearbeitungsstatusEnum(StepStatus.DONE);
+                    } else if (step.getTitel().equals("locked step that should open")) {
+                        step.setBearbeitungsstatusEnum(StepStatus.OPEN);
+                    }
+                }
+
+                return true;
+            }
+        });
+
+        PowerMock.replay(CloseStepHelper.class);
 
         Prefs prefs = new Prefs();
         prefs.loadPrefs("src/test/resources/ruleset.xml");
@@ -132,15 +129,8 @@ public class ProjectExportPluginTest {
         process = getProcess();
         EasyMock.expect(ProcessManager.getProcessById(EasyMock.anyInt())).andReturn(process).anyTimes();
         PowerMock.replay(ProcessManager.class);
-        PowerMock.mockStatic(PropertyManager.class);
-        //        EasyMock.replay(runner);
-        //        PowerMock.replay(mysqlHelper);
-
-        //        PowerMock.replay(MySQLHelper.class);
-
 
     }
-
 
     @Test
     public void testConstructor() {
@@ -154,8 +144,7 @@ public class ProjectExportPluginTest {
         plugin.setTestDatabase(true);
         plugin.setProjectName("SampleProject");
 
-        assertEquals("Export with PREMIS data", plugin.getFinishStepName());
-
+        assertEquals("closed step", plugin.getFinishStepName());
     }
 
     @Test
@@ -175,7 +164,7 @@ public class ProjectExportPluginTest {
         assertTrue(Files.exists(excelFile));
         // TODO read content of file
 
-        Path imageFolder =  Paths.get(metadataDirectory.getAbsolutePath(), "517154005");
+        Path imageFolder = Paths.get(metadataDirectory.getAbsolutePath(), "517154005");
         assertTrue(Files.exists(imageFolder));
 
         List<String> fileNames = new ArrayList<>();
@@ -190,6 +179,15 @@ public class ProjectExportPluginTest {
         Collections.sort(fileNames);
         assertEquals("00000001.tif", fileNames.get(0));
         assertEquals("00000016.tif", fileNames.get(15));
+
+        for (Step step : process.getSchritte()) {
+            if (step.getTitel().equals("test step to close")) {
+                assertEquals(StepStatus.DONE, step.getBearbeitungsstatusEnum());
+            }
+            else if (step.getTitel().equals("locked step that should open")) {
+                assertEquals(StepStatus.OPEN, step.getBearbeitungsstatusEnum());
+            }
+        }
     }
 
     public Process getProcess() {
@@ -215,16 +213,14 @@ public class ProjectExportPluginTest {
         Step s2 = new Step();
         s2.setReihenfolge(2);
         s2.setProzess(process);
-        s2.setTitel("Image deletion step");
-        s2.setStepPlugin("intranda_step_imagedeletion");
+        s2.setTitel("test step to close");
         s2.setBearbeitungsstatusEnum(StepStatus.OPEN);
-        s2.setTypAutomatisch(true);
         steps.add(s2);
 
         Step s3 = new Step();
         s3.setReihenfolge(3);
         s3.setProzess(process);
-        s3.setTitel("test step to deactivate");
+        s3.setTitel("locked step that should open");
         s3.setBearbeitungsstatusEnum(StepStatus.LOCKED);
         steps.add(s3);
 
@@ -246,8 +242,6 @@ public class ProjectExportPluginTest {
 
     }
 
-
-
     private void createProcessDirectory() throws IOException {
 
         // image folder
@@ -256,17 +250,16 @@ public class ProjectExportPluginTest {
         // master folder
         File masterDirectory = new File(imageDirectory.getAbsolutePath(), "master_fixture_media");
         masterDirectory.mkdir();
-        for (int i =1; i <= 16; i++) {
+        for (int i = 1; i <= 16; i++) {
             createFile(masterDirectory, i);
         }
 
         // media folder
         File mediaDirectory = new File(imageDirectory.getAbsolutePath(), "fixture_media");
         mediaDirectory.mkdir();
-        for (int i =1; i <= 16; i++) {
+        for (int i = 1; i <= 16; i++) {
             createFile(mediaDirectory, i);
         }
-        processMediaFolder= mediaDirectory.getAbsolutePath();
 
     }
 

@@ -6,29 +6,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.goobi.beans.Process;
+import org.goobi.beans.Step;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.helper.CloseStepHelper;
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.StorageProvider;
+import de.sub.goobi.helper.enums.StepStatus;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.persistence.managers.MySQLHelper;
@@ -77,6 +76,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
     @Getter
     private String finishStepName;
+    @Getter
+    private String closeStepName;
+
     @Getter
     private boolean exportAllowed = false;
 
@@ -174,6 +176,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             }
         }
         finishStepName = config.getString("/finishedStepName");
+        closeStepName = config.getString("/closeStepName");
     }
 
     public void prepareExport() {
@@ -193,7 +196,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         headerRow.createCell(4).setCellValue("logical page number");
 
         int rowCounter = 1;
-
+        boolean error = false;
         for (Process process : processesInProject) {
 
             // open mets file
@@ -241,21 +244,17 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         rowCounter = rowCounter + 1;
                     }
                     // export images
-                    // TODO
                     Path source = Paths.get(process.getImagesTifDirectory(false));
                     Path target = Paths.get(exportFolder, identifier);
                     if (!Files.exists(target)) {
                         Files.createDirectories(target);
                     }
-
                     StorageProvider.getInstance().copyDirectory(source, target);
                 }
-
             } catch (ReadException | PreferencesException | WriteException | IOException | InterruptedException | SwapException | DAOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                log.error(e);
+                error = true;
             }
-
         }
         // save/download excel
         try {
@@ -265,41 +264,22 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             out.close();
             wb.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e);
+            error = true;
         }
-        for (Process process : processesInProject) {
-
-            // TODO close step xy via goobiscript?
-
-        }
-    }
-
-    private static ResultSetHandler<Map<Integer, Map<String, String>>> resultSetToProjectMetadata =
-            new ResultSetHandler<Map<Integer, Map<String, String>>>() {
-        @Override
-        public Map<Integer, Map<String, String>> handle(ResultSet rs) throws SQLException {
-            Map<Integer, Map<String, String>> projectMetadata = new HashMap<>();
-            try {
-                while (rs.next()) {
-                    Integer id = rs.getInt("processid");
-                    String name = rs.getString("name");
-                    String value = rs.getString("value");
-
-                    Map<String, String> map = projectMetadata.get(id);
-                    if (map == null) {
-                        map = new HashMap<>();
-                        projectMetadata.put(id, map);
+        // close step if no error occurred
+        if (!error) {
+            for (Process process : processesInProject) {
+                for (Step step : process.getSchritte()) {
+                    if (closeStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() != StepStatus.DEACTIVATED
+                            && step.getBearbeitungsstatusEnum() != StepStatus.DONE) {
+                        CloseStepHelper.closeStep(step, null);
+                        // TODO close step xy via ticket or goobiscript?
+                        break;
                     }
-
-                }
-            } finally {
-                if (rs != null) {
-                    rs.close();
                 }
             }
-            return projectMetadata;
         }
-    };
+    }
 
 }

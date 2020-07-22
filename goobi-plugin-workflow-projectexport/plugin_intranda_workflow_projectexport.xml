@@ -1,15 +1,18 @@
 <config_plugin>
     <config>
         <project>SampleProject</project>
-        <finishedStepName>Export with PREMIS data</finishedStepName>
+        <finishedStepName>closed step</finishedStepName>
+        <closeStepName>test step to close</closeStepName>
     </config>
 
 
     <config>
         <!-- name of the project, can be repeated. Use * for any project -->
         <project>*</project>
-        <!--  -->
+        <!-- check if all proceses of the project have finished this task -->
         <finishedStepName></finishedStepName>
+        <!-- close this step after the export was successful -->
+        <closeStepName></closeStepName>
     </config>
 
 </config_plugin>

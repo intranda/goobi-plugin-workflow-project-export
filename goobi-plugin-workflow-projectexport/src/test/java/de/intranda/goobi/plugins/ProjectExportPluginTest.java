@@ -189,7 +189,7 @@ public class ProjectExportPluginTest {
         }
         Collections.sort(fileNames);
         assertEquals("00000001.tif", fileNames.get(0));
-
+        assertEquals("00000016.tif", fileNames.get(15));
     }
 
     public Process getProcess() {

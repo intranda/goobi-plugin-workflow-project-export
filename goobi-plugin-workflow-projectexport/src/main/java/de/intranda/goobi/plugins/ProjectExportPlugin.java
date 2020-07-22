@@ -17,7 +17,6 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,6 +28,7 @@ import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.Helper;
+import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.persistence.managers.MySQLHelper;
@@ -247,8 +247,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     if (!Files.exists(target)) {
                         Files.createDirectories(target);
                     }
-                    FileUtils.copyDirectory(source.toFile(), target.toFile());
-                    //                    StorageProvider.getInstance().copyDirectory(Paths.get(process.getImagesTifDirectory(false)), Paths.get(exportFolder + identifier));
+
+                    StorageProvider.getInstance().copyDirectory(source, target);
                 }
 
             } catch (ReadException | PreferencesException | WriteException | IOException | InterruptedException | SwapException | DAOException e) {
@@ -275,7 +275,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
     }
 
-    public static ResultSetHandler<Map<Integer, Map<String, String>>> resultSetToProjectMetadata =
+    private static ResultSetHandler<Map<Integer, Map<String, String>>> resultSetToProjectMetadata =
             new ResultSetHandler<Map<Integer, Map<String, String>>>() {
         @Override
         public Map<Integer, Map<String, String>> handle(ResultSet rs) throws SQLException {

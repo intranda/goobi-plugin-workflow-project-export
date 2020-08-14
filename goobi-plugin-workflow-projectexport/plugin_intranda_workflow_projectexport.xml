@@ -3,6 +3,15 @@
         <project>SampleProject</project>
         <finishedStepName>closed step</finishedStepName>
         <closeStepName>test step to close</closeStepName>
+          
+        <institution projectName="SampleProject">
+            <link>http://ucei.it/centro-bibliografico/</link>
+            <name>Centro Bibliografico</name>
+        </institution>
+        <institution projectName="Example">
+            <link>http://example.com</link>
+            <institution>Example library</institution>
+        </institution>
     </config>
 
 

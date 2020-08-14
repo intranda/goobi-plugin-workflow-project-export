@@ -12,20 +12,25 @@
                 <mods:mods xmlns:mods="http://www.loc.gov/mods/v3">
                     <mods:extension>
                         <goobi:goobi xmlns:goobi="http://meta.goobi.org/v1.5.1/">
-                            <goobi:metadata name="CreatorsAllOrigin">Klein, Felix</goobi:metadata>
-                            <goobi:metadata name="singleDigCollection">Varia</goobi:metadata>
-                            <goobi:metadata name="singleDigCollection">Digiwunschbuch</goobi:metadata>
-                            <goobi:metadata name="CatalogIDDigital">517154005</goobi:metadata>
-                            <goobi:metadata name="CatalogIDSource">517154005</goobi:metadata>
-                            <goobi:metadata name="TitleDocMain">Universität und Technische Hochschule</goobi:metadata>
-                            <goobi:metadata name="TitleDocMainShort">Universität und Technische Hochschule</goobi:metadata>
-                            <goobi:metadata name="SizeSourcePrint">13 S.</goobi:metadata>
-                            <goobi:metadata name="Author" type="person">
-                                <goobi:lastName>Klein</goobi:lastName>
-                                <goobi:firstName>Felix</goobi:firstName>
-                                <goobi:displayName>Klein, Felix</goobi:displayName>
-                            </goobi:metadata>
-                        </goobi:goobi>
+                             <goobi:metadata name="shelfmarksource">210</goobi:metadata>
+                             <goobi:metadata name="singleDigCollection">General</goobi:metadata>
+                             <goobi:metadata name="CatalogIDDigital">RM0166F01-0000001</goobi:metadata>
+                             <goobi:metadata name="AlmaID">990012587030205171</goobi:metadata>
+                             <goobi:metadata name="PublicationRun">1661-1666</goobi:metadata>
+                             <goobi:metadata name="PublicationStart">1661</goobi:metadata>
+                             <goobi:metadata name="PublicationEnd">1666</goobi:metadata>
+                             <goobi:metadata name="NLICatalog">https://www.nli.org.il/en/books/NNL_ALEPH001258703/NLI</goobi:metadata>
+                             <goobi:metadata name="AuthorPreferredHeb">קרו, יוסף בן אפרים, 1488-1575</goobi:metadata>
+                             <goobi:metadata name="TitleDocMain">שלחן ערוך : מטור ... / חברו ... מהר&quot;ר יוסף קארו ; עם חידושי ... מהר&quot;ר משה איסרלש ... ; עם ביאור המלות ונוסף ... באר הגולה ... ; במצות והוצאת ... אפרים בואינו ... יעקב קאשטילו.</goobi:metadata>
+                             <goobi:metadata name="PublisherHeb">אטיאש, יוסף בן אברהם</goobi:metadata>
+                             <goobi:metadata name="PlaceOfPublication">Amsterdam (Netherlands)</goobi:metadata>
+                             <goobi:metadata name="AuthorPreferred">Karo, Joseph ben Ephraim,</goobi:metadata>
+                             <goobi:metadata name="AuthorPreferredOther">Caro, Joseph ben Ephraim,; Caro, Joseph,; Karo, Joseph ben Ephraim,; Karo, Yosef,; Karo, Yossef; Rika,; Joseph ben Ephraim Caro,; Korah, Joseph Ben Ephraim; Yosef ben Efrayim Karo,; Karo, Yosef ben Efrayim,; Quaro, Joseph Ben Ephraim; Josef Karo Ben Ephraim; Qaro, Joseph ben Ephraim; Karo, Iosif,; Caro, Yosef ben Ephrayim,; קרו, יוסף בן אפרים; בית יוסף (קרו); בית יוסף (קארו); קארו, יוסף בן אפרים,; קרו, יוסף; מהרי&quot;ק (יוסף בן אפרים קארו); יוסף קארו</goobi:metadata>
+                             <goobi:metadata name="Publisher">Athias, Joseph,</goobi:metadata>
+                             <goobi:metadata name="PublisherOther">Athias, Joseph,; Athias, Joseph ben Avraham,; עטיאס, יוסף; עטיאש, יוסף; עטאש, י.</goobi:metadata>
+                             <goobi:metadata name="PlaceOfPublicationNormalized">Amsterdam (Netherlands)</goobi:metadata>
+                             <goobi:metadata name="PlaceOfPublicationOther">Amesterdao (Netherlands); Amstelodamum (Netherlands); Amstelaedamum (Netherlands); Amstelredamum (Netherlands); Amsterodamum (Netherlands); Amstelrodamum (Netherlands); אמשטרדם (הולנד); אמשטילרדם (הולנד); אמ&quot;ד (הולנד); אמשטירדם (הולנד)</goobi:metadata>
+                          </goobi:goobi>
                     </mods:extension>
                 </mods:mods>
             </mets:xmlData>
@@ -51,6 +56,7 @@
                     <mods:extension>
                         <goobi:goobi xmlns:goobi="http://meta.goobi.org/v1.5.1/">
                             <goobi:metadata name="pathimagefiles">file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif</goobi:metadata>
+                            <goobi:metadata name="_representative">9</goobi:metadata>
                         </goobi:goobi>
                     </mods:extension>
                 </mods:mods>
@@ -60,52 +66,52 @@
     <mets:fileSec>
         <mets:fileGrp USE="LOCAL">
             <mets:file ID="FILE_0000" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000001.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_001.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0001" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000002.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_002.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0002" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000003.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_003.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0003" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000004.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_004.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0004" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000005.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_005.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0005" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000006.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_006.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0006" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000007.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_007.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0007" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000008.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_008.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0008" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000009.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_009.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0009" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000010.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_010.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0010" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000011.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_011.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0011" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000012.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_012.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0012" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000013.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_013.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0013" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000014.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_014.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0014" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000015.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_015.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
             <mets:file ID="FILE_0015" MIMETYPE="image/tiff">
-                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/00000016.tif" xmlns:xlink="http://www.w3.org/1999/xlink" />
+                <mets:FLocat LOCTYPE="URL" xlink:href="file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif/RM0166F01-0000001_016.jpg" xmlns:xlink="http://www.w3.org/1999/xlink" />
             </mets:file>
         </mets:fileGrp>
     </mets:fileSec>

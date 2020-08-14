@@ -19,6 +19,7 @@ import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.goobi.beans.Process;
+import org.goobi.beans.Processproperty;
 import org.goobi.beans.Project;
 import org.goobi.beans.Step;
 import org.goobi.beans.User;
@@ -36,6 +37,7 @@ import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
 import de.sub.goobi.helper.CloseStepHelper;
 import de.sub.goobi.helper.VariableReplacer;
+import de.sub.goobi.helper.enums.PropertyType;
 import de.sub.goobi.helper.enums.StepStatus;
 import de.sub.goobi.metadaten.MetadatenHelper;
 import de.sub.goobi.persistence.managers.ProcessManager;
@@ -56,15 +58,24 @@ public class ProjectExportPluginTest {
     private File metadataDirectory;
     private Process process;
 
+    private String resourcesFolder;
+
     @Before
     public void setUp() throws Exception {
+
+        resourcesFolder = "src/test/resources/"; // for junit tests in eclipse
+
+        if (!Files.exists(Paths.get(resourcesFolder))) {
+            resourcesFolder = "target/test-classes/"; // to run mvn test from cli or in jenkins
+        }
+
         metadataDirectory = folder.newFolder("metadata");
         processDirectory = new File(metadataDirectory + File.separator + "1");
         processDirectory.mkdirs();
         String metadataDirectoryName = metadataDirectory.getAbsolutePath() + File.separator;
 
         // copy meta.xml
-        Path metaSource = Paths.get("src/test/resources/meta.xml");
+        Path metaSource = Paths.get(resourcesFolder + "meta.xml");
         Path metaTarget = Paths.get(processDirectory.getAbsolutePath(), "meta.xml");
         Files.copy(metaSource, metaTarget);
 
@@ -83,14 +94,14 @@ public class ProjectExportPluginTest {
         EasyMock.expect(configurationHelper.isUseMasterDirectory()).andReturn(true).anyTimes();
         EasyMock.expect(configurationHelper.isCreateMasterDirectory()).andReturn(false).anyTimes();
         EasyMock.expect(configurationHelper.isCreateSourceFolder()).andReturn(false).anyTimes();
-        EasyMock.expect(configurationHelper.getProcessImagesMainDirectoryName()).andReturn("fixture_media").anyTimes();
+        EasyMock.expect(configurationHelper.getProcessImagesMainDirectoryName()).andReturn("RM0166F05-0000001_media").anyTimes();
         EasyMock.expect(configurationHelper.getFolderForInternalProcesslogFiles()).andReturn("intern").anyTimes();
         EasyMock.expect(configurationHelper.getMetadataFolder()).andReturn(metadataDirectoryName).anyTimes();
 
         EasyMock.expect(configurationHelper.getScriptCreateDirMeta()).andReturn("").anyTimes();
         EasyMock.replay(configurationHelper);
         PowerMock.mockStatic(VariableReplacer.class);
-        EasyMock.expect(VariableReplacer.simpleReplace(EasyMock.anyString(), EasyMock.anyObject())).andReturn("fixture_media");
+        EasyMock.expect(VariableReplacer.simpleReplace(EasyMock.anyString(), EasyMock.anyObject())).andReturn("RM0166F05-0000001_media");
         PowerMock.replay(VariableReplacer.class);
 
         PowerMock.mockStatic(CloseStepHelper.class);
@@ -113,7 +124,7 @@ public class ProjectExportPluginTest {
         PowerMock.replay(CloseStepHelper.class);
 
         Prefs prefs = new Prefs();
-        prefs.loadPrefs("src/test/resources/ruleset.xml");
+        prefs.loadPrefs(resourcesFolder + "ruleset.xml");
         Fileformat ff = new MetsMods(prefs);
         ff.read(metaTarget.toString());
 
@@ -145,6 +156,9 @@ public class ProjectExportPluginTest {
         plugin.setProjectName("SampleProject");
 
         assertEquals("closed step", plugin.getFinishStepName());
+
+        assertEquals("http://ucei.it/centro-bibliografico/", plugin.getInstitutionLink());
+        assertEquals("Centro Bibliografico", plugin.getInstitutionName());
     }
 
     @Test
@@ -164,7 +178,7 @@ public class ProjectExportPluginTest {
         assertTrue(Files.exists(excelFile));
         // TODO read content of file
 
-        Path imageFolder = Paths.get(metadataDirectory.getAbsolutePath(), "517154005");
+        Path imageFolder = Paths.get(metadataDirectory.getAbsolutePath(), "990012587030205171");
         assertTrue(Files.exists(imageFolder));
 
         List<String> fileNames = new ArrayList<>();
@@ -177,14 +191,13 @@ public class ProjectExportPluginTest {
         } catch (IOException ex) {
         }
         Collections.sort(fileNames);
-        assertEquals("00000001.tif", fileNames.get(0));
-        assertEquals("00000016.tif", fileNames.get(15));
+        assertEquals("RM0166F05-0000001_001.jpg", fileNames.get(0));
+        assertEquals("RM0166F05-0000001_016.jpg", fileNames.get(15));
 
         for (Step step : process.getSchritte()) {
             if (step.getTitel().equals("test step to close")) {
                 assertEquals(StepStatus.DONE, step.getBearbeitungsstatusEnum());
-            }
-            else if (step.getTitel().equals("locked step that should open")) {
+            } else if (step.getTitel().equals("locked step that should open")) {
                 assertEquals(StepStatus.OPEN, step.getBearbeitungsstatusEnum());
             }
         }
@@ -195,7 +208,7 @@ public class ProjectExportPluginTest {
         project.setTitel("SampleProject");
 
         Process process = new Process();
-        process.setTitel("fixture");
+        process.setTitel("RM0166F05-0000001");
         process.setProjekt(project);
         process.setId(1);
         List<Step> steps = new ArrayList<>();
@@ -228,10 +241,28 @@ public class ProjectExportPluginTest {
         try {
             createProcessDirectory();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
+        List<Processproperty> properties = new ArrayList<>();
+
+        properties.add(createProperty("Marginalia", "N"));
+        properties.add(createProperty("Censorship", "N"));
+        properties.add(createProperty("Provenance", "Y"));
+        properties.add(createProperty("Book is important", "yes"));
+        properties.add(createProperty("Reason for insignificance", ""));
+        properties.add(createProperty("NLI identifier", "990012587030205171"));
+        properties.add(createProperty("Reason for missing NLI identifier", ""));
+        properties.add(createProperty("OCLC identifier", "319712882"));
+        process.setEigenschaften(properties);
         return process;
+    }
+
+    private Processproperty createProperty(String name, String value) {
+        Processproperty prop = new Processproperty();
+        prop.setProzess(process);
+        prop.setTitel(name);
+        prop.setWert(value);
+        prop.setType(PropertyType.String);
+        return prop;
     }
 
     private XMLConfiguration getConfig() throws Exception {
@@ -248,14 +279,14 @@ public class ProjectExportPluginTest {
         File imageDirectory = new File(processDirectory.getAbsolutePath(), "images");
         imageDirectory.mkdir();
         // master folder
-        File masterDirectory = new File(imageDirectory.getAbsolutePath(), "master_fixture_media");
+        File masterDirectory = new File(imageDirectory.getAbsolutePath(), "master_RM0166F05-0000001_media");
         masterDirectory.mkdir();
         for (int i = 1; i <= 16; i++) {
             createFile(masterDirectory, i);
         }
 
         // media folder
-        File mediaDirectory = new File(imageDirectory.getAbsolutePath(), "fixture_media");
+        File mediaDirectory = new File(imageDirectory.getAbsolutePath(), "RM0166F05-0000001_media");
         mediaDirectory.mkdir();
         for (int i = 1; i <= 16; i++) {
             createFile(mediaDirectory, i);
@@ -266,9 +297,9 @@ public class ProjectExportPluginTest {
     private void createFile(File folder, int counter) throws IOException {
         String imagename;
         if (counter > 9) {
-            imagename = "000000" + counter + ".tif";
+            imagename = "RM0166F05-0000001_0" + counter + ".jpg";
         } else {
-            imagename = "0000000" + counter + ".tif";
+            imagename = "RM0166F05-0000001_00" + counter + ".jpg";
         }
         File image = new File(folder.getAbsolutePath(), imagename);
         image.createNewFile();

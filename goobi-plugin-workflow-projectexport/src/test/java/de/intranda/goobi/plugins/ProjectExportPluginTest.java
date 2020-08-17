@@ -70,6 +70,7 @@ public class ProjectExportPluginTest {
         }
 
         metadataDirectory = folder.newFolder("metadata");
+
         processDirectory = new File(metadataDirectory + File.separator + "1");
         processDirectory.mkdirs();
         String metadataDirectoryName = metadataDirectory.getAbsolutePath() + File.separator;
@@ -101,7 +102,7 @@ public class ProjectExportPluginTest {
         EasyMock.expect(configurationHelper.getScriptCreateDirMeta()).andReturn("").anyTimes();
         EasyMock.replay(configurationHelper);
         PowerMock.mockStatic(VariableReplacer.class);
-        EasyMock.expect(VariableReplacer.simpleReplace(EasyMock.anyString(), EasyMock.anyObject())).andReturn("RM0166F05-0000001_media");
+        EasyMock.expect(VariableReplacer.simpleReplace(EasyMock.anyString(), EasyMock.anyObject())).andReturn("RM0166F05-0000001_media").anyTimes();
         PowerMock.replay(VariableReplacer.class);
 
         PowerMock.mockStatic(CloseStepHelper.class);
@@ -119,7 +120,7 @@ public class ProjectExportPluginTest {
 
                 return true;
             }
-        });
+        }).anyTimes();
 
         PowerMock.replay(CloseStepHelper.class);
 
@@ -129,8 +130,8 @@ public class ProjectExportPluginTest {
         ff.read(metaTarget.toString());
 
         PowerMock.mockStatic(MetadatenHelper.class);
-        EasyMock.expect(MetadatenHelper.getMetaFileType(EasyMock.anyString())).andReturn("mets");
-        EasyMock.expect(MetadatenHelper.getFileformatByName(EasyMock.anyString(), EasyMock.anyObject())).andReturn(ff);
+        EasyMock.expect(MetadatenHelper.getMetaFileType(EasyMock.anyString())).andReturn("mets").anyTimes();
+        EasyMock.expect(MetadatenHelper.getFileformatByName(EasyMock.anyString(), EasyMock.anyObject())).andReturn(ff).anyTimes();
 
         PowerMock.mockStatic(StepManager.class);
         PowerMock.mockStatic(ProcessManager.class);
@@ -156,9 +157,6 @@ public class ProjectExportPluginTest {
         plugin.setProjectName("SampleProject");
 
         assertEquals("closed step", plugin.getFinishStepName());
-
-        assertEquals("http://ucei.it/centro-bibliografico/", plugin.getInstitutionLink());
-        assertEquals("Centro Bibliografico", plugin.getInstitutionName());
     }
 
     @Test
@@ -168,6 +166,15 @@ public class ProjectExportPluginTest {
         plugin.setExportFolder(metadataDirectory.getAbsolutePath());
         List<Process> testProcesses = new ArrayList<>();
         testProcesses.add(process);
+
+        Process p2 = createAdditionalTestProcess(2, "RM0166F05-0000001");
+        Process p3 = createAdditionalTestProcess(3, "RM0166F05-0000004");
+        Process p4 = createAdditionalTestProcess(4, "RM0166F05-0000019");
+
+        testProcesses.add(p2);
+        testProcesses.add(p3);
+        testProcesses.add(p4);
+
         plugin.setTestList(testProcesses);
 
         plugin.setProjectName("SampleProject");
@@ -176,7 +183,6 @@ public class ProjectExportPluginTest {
 
         Path excelFile = Paths.get(metadataDirectory.getAbsolutePath(), "metadata.xlsx");
         assertTrue(Files.exists(excelFile));
-        // TODO read content of file
 
         Path imageFolder = Paths.get(metadataDirectory.getAbsolutePath(), "990012587030205171");
         assertTrue(Files.exists(imageFolder));
@@ -203,14 +209,76 @@ public class ProjectExportPluginTest {
         }
     }
 
+    private Process createAdditionalTestProcess(int id, String title) {
+        Process p = new Process();
+        p.setId(id);
+        p.setTitel(title);
+        p.setProjekt(process.getProjekt());
+        List<Step> steps = createSteps(p);
+
+        p.setSchritte(steps);
+        try {
+            File processDirectory = new File(metadataDirectory + File.separator + id);
+            processDirectory.mkdirs();
+            Path metaSource = Paths.get(resourcesFolder + "meta" + id + ".xml");
+            Path metaTarget = Paths.get(processDirectory.getAbsolutePath(), "meta.xml");
+            Files.copy(metaSource, metaTarget);
+            createProcessDirectory(processDirectory);
+        } catch (IOException e) {
+        }
+        List<Processproperty> properties = createProperties();
+
+        p.setEigenschaften(properties);
+        return p;
+    }
+
     public Process getProcess() {
-        Project project = new Project();
-        project.setTitel("SampleProject");
+        Project project = createProject();
 
         Process process = new Process();
-        process.setTitel("RM0166F05-0000001");
+        process.setTitel("RM0166F01-0000001");
         process.setProjekt(project);
         process.setId(1);
+        List<Step> steps = createSteps(process);
+
+        process.setSchritte(steps);
+        try {
+            createProcessDirectory(processDirectory);
+        } catch (IOException e) {
+        }
+        List<Processproperty> properties = createProperties();
+
+        properties.add(createProperty("notes_01", "Manṭovah :  Be-vet Yehudah Shemuʼel mi-Prushah u-veno,   [386] 1626."));
+
+        process.setEigenschaften(properties);
+        return process;
+    }
+
+    private List<Processproperty> createProperties() {
+        List<Processproperty> properties = new ArrayList<>();
+
+        properties.add(createProperty("Marginalia", "N"));
+        properties.add(createProperty("Censorship", "N"));
+        properties.add(createProperty("Provenance", "Y"));
+        properties.add(createProperty("Book is important", "yes"));
+        properties.add(createProperty("Reason for insignificance", ""));
+        properties.add(createProperty("NLI identifier", "990012587030205171"));
+        properties.add(createProperty("Reason for missing NLI identifier", ""));
+        properties.add(createProperty("OCLC identifier", "319712882"));
+
+
+        return properties;
+    }
+
+    private Project createProject() {
+        Project project = new Project();
+        project.setTitel("SampleProject");
+        project.setMetsRightsOwner("Centro Bibliografico");
+        project.setMetsRightsOwnerSite("http://ucei.it/centro-bibliografico/");
+        return project;
+    }
+
+    private List<Step> createSteps(Process process) {
         List<Step> steps = new ArrayList<>();
         Step s1 = new Step();
         s1.setReihenfolge(1);
@@ -236,24 +304,7 @@ public class ProjectExportPluginTest {
         s3.setTitel("locked step that should open");
         s3.setBearbeitungsstatusEnum(StepStatus.LOCKED);
         steps.add(s3);
-
-        process.setSchritte(steps);
-        try {
-            createProcessDirectory();
-        } catch (IOException e) {
-        }
-        List<Processproperty> properties = new ArrayList<>();
-
-        properties.add(createProperty("Marginalia", "N"));
-        properties.add(createProperty("Censorship", "N"));
-        properties.add(createProperty("Provenance", "Y"));
-        properties.add(createProperty("Book is important", "yes"));
-        properties.add(createProperty("Reason for insignificance", ""));
-        properties.add(createProperty("NLI identifier", "990012587030205171"));
-        properties.add(createProperty("Reason for missing NLI identifier", ""));
-        properties.add(createProperty("OCLC identifier", "319712882"));
-        process.setEigenschaften(properties);
-        return process;
+        return steps;
     }
 
     private Processproperty createProperty(String name, String value) {
@@ -273,7 +324,7 @@ public class ProjectExportPluginTest {
 
     }
 
-    private void createProcessDirectory() throws IOException {
+    private void createProcessDirectory(File processDirectory) throws IOException {
 
         // image folder
         File imageDirectory = new File(processDirectory.getAbsolutePath(), "images");

@@ -95,11 +95,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     @Setter
     private List<Process> testList;
 
-    @Getter
-    private String institutionLink;
-    @Getter
-    private String institutionName;
-
     public List<String> getAllProjectNames() {
         if (allProjectNames == null) {
             allProjectNames = ProjectManager.getAllProjectTitles(true);
@@ -183,9 +178,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
         finishStepName = config.getString("/finishedStepName");
         closeStepName = config.getString("/closeStepName");
-
-        institutionLink = config.getString("/institution[@projectName='" + projectName + "']/link");
-        institutionName = config.getString("/institution[@projectName='" + projectName + "']/name");
     }
 
     public void prepareExport() {
@@ -269,7 +261,26 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     String marginalia = "";
                     String provenance = "";
                     String oclcIdentifier = "";
-                    String notes01 = "";
+                    String notes_01 = ""; // TODO get it from correct field
+                    String titleLat = ""; // TODO get it from correct field
+                    String notes_02 = ""; // TODO get it from correct field
+                    String copies = "";
+                    String title = "";
+                    String identifier = "";
+                    String shelfmark = "";
+                    String authorLat = "";
+                    String authorHeb = "";
+                    String authorOther = "";
+                    String year = "";
+                    String city = "";
+                    String cityNormed = "";
+                    String cityOther = "";
+
+                    String publisherLat = "";
+                    String publisherHeb = "";
+                    String publisherOther = "";
+                    String nliLink = "";
+
                     for (Processproperty prop : process.getEigenschaften()) {
                         if (prop.getTitel().equals("Censorship")) {
                             censorship = prop.getWert();
@@ -279,26 +290,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             provenance = prop.getWert();
                         } else if (prop.getTitel().equals("OCLC identifier")) {
                             oclcIdentifier = prop.getWert();
-                        } else if (prop.getTitel().equals("Reason for missing NLI identifier")) {
-                            notes01 = prop.getWert();
+                        } else if (prop.getTitel().equals("Number of Copies")) {
+                            copies = prop.getWert();
+                            //                        } else if (prop.getTitel().equals("notes_01")) {
+                            //                            notes01 = prop.getWert();
                         }
 
                     }
-
-                    String title = "";
-                    String identifier = "";
-                    String shelfmark = "";
-                    String authorLat = "";
-                    String authorHeb = "";
-                    String authorOther = "";
-                    String year = "";
-                    String city = "";
-                    String cityOther = "";
-
-                    String publisherLat = "";
-                    String publisherHeb = "";
-                    String publisherOther = "";
-                    String nliLink = "";
 
                     StringBuilder additionalAuthorHeb = new StringBuilder();
                     StringBuilder additionalAuthorLat = new StringBuilder();
@@ -322,6 +320,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         } else if (md.getType().getName().equals("PublicationYear")) {
                             year = md.getValue();
                         } else if (md.getType().getName().equals("PlaceOfPublicationNormalized")) {
+                            cityNormed = md.getValue();
+                        } else if (md.getType().getName().equals("PlaceOfPublication")) {
                             city = md.getValue();
                         } else if (md.getType().getName().equals("PlaceOfPublicationOther")) {
                             cityOther = md.getValue();
@@ -398,7 +398,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: Wil be taken from the 100 field in the NLI record
                         // Clarification: Taken automatically by Goobi from the 100 field in the NLI Alma bibliographic record with the prefix $$HEB (to denote the Hebrew Name)
                         // Example: מודנה, אהרן ברכיה בן משה
-                        imageRow.createCell(6).setCellValue(StringUtils.isBlank(authorHeb) ? "" : "$$HEB" + authorHeb);
+                        imageRow.createCell(6).setCellValue(authorHeb);
                         // Field: Other Name Forms
                         // Comments: will be taken from VIAF
                         // Clarification: To be taken from VIAF, Exact Query using the Israel data set on VIAF only the search term is the content of field G above which has been extracted from the NLI ALMA bibliographic record. All other name forms to be copied into this field separated by a semicolon+space "; "
@@ -408,7 +408,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: will be taken from the OCLC record, or from the manual transliteration.
                         // Clarification: To be taken from the WorldCat transliterated MARC record (field 245) based on the OCLC number entered by the cataloguer (see field L below). If no OCLC number then this will be manually transliterated by the cataloguer
                         // Example: Maʻavar Yaboḳ
-                        imageRow.createCell(8).setCellValue(""); // TODO property or metadata?
+                        imageRow.createCell(8).setCellValue(titleLat);
                         // Field: title heb
                         // Comments: should be taken from the 245 feild in the NLI record
                         // Clarification: Taken automatically by Goobi from the 245 field in the NLI Alma bibliographic record
@@ -428,7 +428,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: is taken from the 260 field in OCLC or compiled by the cataloguer if missing
                         // Clarification: This is the imprint field which will be taken from the OCLC record under field 260 (for the majority of the time) or 264 if there is no information in the 260 field
                         // Example: Manṭovah :  Be-vet Yehudah Shemuʼel mi-Prushah u-veno,   [386] 1626.
-                        imageRow.createCell(12).setCellValue(notes01);
+                        imageRow.createCell(12).setCellValue(notes_01);
                         // Field: Normalised Year
                         // Comments: should be taken from the 008 field in the NLI record
                         // Clarification: To be taken from the NLI ALMA bibliographic record from field 008
@@ -438,7 +438,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: should be taken from VIAF (Italian form) based on the 751 NLI record with sub-field "e"="publishing place"
                         // Clarification: To be taken from VIAF, Exact Query using the Israel data set on VIAF only the search term is the content of field 751 (with a sub field "e" which means publishing place) to be extracted from the NLI ALMA bibliographic record. The version to be used is Either: Italian, Vatican or LOC if Italian or vatican name forms are not present
                         // Example: Mantova
-                        imageRow.createCell(14).setCellValue(city);
+                        imageRow.createCell(14).setCellValue(StringUtils.isNotBlank(cityNormed) ? cityNormed : city);
                         // Field: reference forms of city.
                         // Comments: should be taken from VIAF based on the 751 NLI record with sub-field "e"="publishing place"
                         // Clarification: To be taken from VIAF, Exact Query using the Israel data set on VIAF only the search term is the content of field 751 (with a sub field "e" which means publishing place) to be extracted from the NLI ALMA bibliographic record.  All other name forms to be copied into this field separated by a semicolon+space "; "
@@ -458,7 +458,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: IT IS COMPILED BY THE CATALOGUER ACCORDING TO THE COPY INFORMATION
                         // Clarification: This is an area for the cataloguer to record any notes as needed in Goobi workflow
                         // Example: Missing pages.
-                        imageRow.createCell(18).setCellValue(""); // TODO property or metadata?
+                        imageRow.createCell(18).setCellValue(notes_02);
                         // Field: Link 1 NLI catalog
                         // Comments:
                         // Clarification: This is the link to the NLI ALMA catalogue record for the book. Goobi to automatically generate it by combining standard URL prefix with the NLI ALMA number in field K above
@@ -473,12 +473,12 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments:
                         // Clarification: This is the website of the holding institution. This is to be inserted by Goobi automatically from the Project record (there will be 1 project per institution)
                         // Example:
-                        imageRow.createCell(21).setCellValue(institutionLink);
+                        imageRow.createCell(21).setCellValue(process.getProjekt().getMetsRightsOwnerSite());
                         // Field: Etichetta 2 keeping institution
                         // Comments:
                         // Clarification: This is the name of the holding institution. This is to be inserted by Goobi automatically from the Project record (there will be 1 project per institution)
                         // Example:
-                        imageRow.createCell(22).setCellValue(institutionName);
+                        imageRow.createCell(22).setCellValue(process.getProjekt().getMetsRightsOwner());
                         // Field: provenance
                         // Comments: Y/N, will be chosen by the cataloger or provided by the institution in there excel
                         // Clarification: Imported into Goobi as part of the excel upload of the inventory spreadsheet. This is the provenence information provided by the source library "Y" or "N" it will always be present.
@@ -499,13 +499,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Clarification: Taken automatically by Goobi from the 700 field in the NLI Alma bibliographic record with the prefix $$LAT (to denote Latin names) All additional author names to be copied into this field separated by a semicolon+space "; "
                         // Example:
 
-                        imageRow.createCell(26).setCellValue(additionalAuthorLat.length() == 0 ? "" : "$$LAT" + additionalAuthorLat.toString());
+                        imageRow.createCell(26).setCellValue(additionalAuthorLat.toString());
                         // Field: Additional authors in Hebrew
                         // Comments: will be taken from the 700 field in the NLI record, can be multiple should be seperated with ";"
                         // Clarification: Taken automatically by Goobi from the 700 field in the NLI Alma bibliographic record with the prefix $$HEB (to denote Hebrew names) All additional author names to be copied into this field separated by a semicolon+space "; "
                         // Example:
 
-                        imageRow.createCell(27).setCellValue(additionalAuthorHeb.length() == 0 ? "" : "$$HEB" + additionalAuthorHeb.toString());
+                        imageRow.createCell(27).setCellValue(additionalAuthorHeb.toString());
                         // Field: Additional authors references
                         // Comments: will be taken from VIAF based on the 700 field in the NLI record, can be multiple should be seperated with ";"
                         // Clarification: To be taken from VIAF, Exact Query using the Israel data set on VIAF only the search term is the content of field 700 to be extracted from the NLI ALMA bibliographic record. All other name forms to be copied into this field separated by a semicolon+space "; "
@@ -515,7 +515,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: calculated by GOOBI, or provided by the institutino in there excel
                         // Clarification: This is to be taken from the excel upload of the inventory spreadsheet
                         // Example: 1
-                        imageRow.createCell(29).setCellValue(""); // TODO ?
+                        imageRow.createCell(29).setCellValue(StringUtils.isBlank(copies) ? "1" : copies);
 
                         rowCounter = rowCounter + 1;
                     }
@@ -550,7 +550,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     if (closeStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() != StepStatus.DEACTIVATED
                             && step.getBearbeitungsstatusEnum() != StepStatus.DONE) {
                         CloseStepHelper.closeStep(step, null);
-                        // TODO close step xy via ticket or goobiscript?
+                        // close step via ticket or goobiscript?
                         break;
                     }
                 }

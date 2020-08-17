@@ -12,24 +12,19 @@
                 <mods:mods xmlns:mods="http://www.loc.gov/mods/v3">
                     <mods:extension>
                         <goobi:goobi xmlns:goobi="http://meta.goobi.org/v1.5.1/">
-                             <goobi:metadata name="shelfmarksource">CB_FI_014</goobi:metadata>
+                             <goobi:metadata name="shelfmarksource">CB_FI_119A</goobi:metadata>
                              <goobi:metadata name="singleDigCollection">General</goobi:metadata>
-                             <goobi:metadata name="CatalogIDDigital">RM0166F01-0000001</goobi:metadata>
-                             <goobi:metadata name="AlmaID">990012587030205171</goobi:metadata>
-                             <goobi:metadata name="PublicationRun">1661-1666</goobi:metadata>
-                             <goobi:metadata name="PublicationStart">1661</goobi:metadata>
-                             <goobi:metadata name="PublicationEnd">1666</goobi:metadata>
-                             <goobi:metadata name="NLICatalog">https://www.nli.org.il/en/books/NNL_ALEPH001258703/NLI</goobi:metadata>
-                             <goobi:metadata name="AuthorPreferredHeb">קרו, יוסף בן אפרים, 1488-1575</goobi:metadata>
-                             <goobi:metadata name="TitleDocMain">שלחן ערוך : מטור ... / חברו ... מהר&quot;ר יוסף קארו ; עם חידושי ... מהר&quot;ר משה איסרלש ... ; עם ביאור המלות ונוסף ... באר הגולה ... ; במצות והוצאת ... אפרים בואינו ... יעקב קאשטילו.</goobi:metadata>
-                             <goobi:metadata name="PublisherHeb">אטיאש, יוסף בן אברהם</goobi:metadata>
-                             <goobi:metadata name="PlaceOfPublication">Amsterdam (Netherlands)</goobi:metadata>
-                             <goobi:metadata name="AuthorPreferred">Karo, Joseph ben Ephraim,</goobi:metadata>
-                             <goobi:metadata name="AuthorPreferredOther">Caro, Joseph ben Ephraim,; Caro, Joseph,; Karo, Joseph ben Ephraim,; Karo, Yosef,; Karo, Yossef; Rika,; Joseph ben Ephraim Caro,; Korah, Joseph Ben Ephraim; Yosef ben Efrayim Karo,; Karo, Yosef ben Efrayim,; Quaro, Joseph Ben Ephraim; Josef Karo Ben Ephraim; Qaro, Joseph ben Ephraim; Karo, Iosif,; Caro, Yosef ben Ephrayim,; קרו, יוסף בן אפרים; בית יוסף (קרו); בית יוסף (קארו); קארו, יוסף בן אפרים,; קרו, יוסף; מהרי&quot;ק (יוסף בן אפרים קארו); יוסף קארו</goobi:metadata>
-                             <goobi:metadata name="Publisher">Athias, Joseph,</goobi:metadata>
-                             <goobi:metadata name="PublisherOther">Athias, Joseph,; Athias, Joseph ben Avraham,; עטיאס, יוסף; עטיאש, יוסף; עטאש, י.</goobi:metadata>
-                             <goobi:metadata name="PlaceOfPublicationNormalized">Amsterdam (Netherlands)</goobi:metadata>
-                             <goobi:metadata name="PlaceOfPublicationOther">Amesterdao (Netherlands); Amstelodamum (Netherlands); Amstelaedamum (Netherlands); Amstelredamum (Netherlands); Amsterodamum (Netherlands); Amstelrodamum (Netherlands); אמשטרדם (הולנד); אמשטילרדם (הולנד); אמ&quot;ד (הולנד); אמשטירדם (הולנד)</goobi:metadata>
+                             <goobi:metadata name="CatalogIDDigital">RM0166F05-0000019</goobi:metadata>
+                             <goobi:metadata name="AlmaID">990018871250205171</goobi:metadata>
+                             <goobi:metadata name="PublicationYear">1691</goobi:metadata>
+                             <goobi:metadata name="NLICatalog">https://www.nli.org.il/en/books/NNL_ALEPH001887125/NLI</goobi:metadata>
+                             <goobi:metadata name="AuthorPreferredHeb">הלל בן נפתלי הירץ, 1615-1690</goobi:metadata>
+                             <goobi:metadata name="TitleDocMain">ספר בית הילל : על שלחן ערוך מיורה דעה / אשר איזן ותקן ... והוציא מתוך פלפולו קושיות ... דברי הש&quot;ע לפרש ולישר ... מוה'ר הילל בר' נפתלי הירץ ... [בסוף גם על שלחן ערוך אבן העזר בשער מיוחד ובמספרים מיוחדים].</goobi:metadata>
+                             <goobi:metadata name="AdditionalAuthor">שער אריה, דוד בן אלעזר</goobi:metadata>
+                             <goobi:metadata name="PlaceOfPublication">Brzeg Dolny (Poland)</goobi:metadata>
+                             <goobi:metadata name="AuthorPreferred">Hillel ben Naphtali Ẓevi,</goobi:metadata>
+                             <goobi:metadata name="AuthorPreferredOther">Ẓevi, Hillel ben Naphtali,; Hilel ben Naftali Hirts,; Hirts, Hilel ben Naftali,; Hillel ben Naphtali Herz,; Herz, Hillel ben Naphtali,; הלל בן נפתלי צבי,; הירץ, הלל בן נפתלי,; הלל בן נפתלי הרץ,; הרץ, הלל בן נפתלי,; צבי, הלל בן נפתלי,; הלל בן נפתלי הרץ; הילל בן נפתלי הירץ,; הילל בן נפתלי הירץ</goobi:metadata>
+                             <goobi:metadata name="PlaceOfPublicationOther">Dyhernfurth (Poland); Dihrenfurt (Poland); דיהרענפורט (פולין); דירנפורט (פולין); דיהרנפורט (פולין); דיהרן פארט (פולין); דיהרן פורט (פולין); דיהרנפרט (פולין); דיהרפורט (פולין)</goobi:metadata>
                           </goobi:goobi>
                     </mods:extension>
                 </mods:mods>
@@ -43,7 +38,7 @@
                     <mods:extension>
                         <goobi:goobi xmlns:goobi="http://meta.goobi.org/v1.5.1/">
                             <goobi:metadata name="pathimagefiles">file:///san/goobi/rusdml/Metadaten/1165/images/kleiuniv_PPN517154005_tif</goobi:metadata>
-                            <goobi:metadata name="_representative">1</goobi:metadata>
+                            <goobi:metadata name="_representative">4</goobi:metadata>
                         </goobi:goobi>
                     </mods:extension>
                 </mods:mods>

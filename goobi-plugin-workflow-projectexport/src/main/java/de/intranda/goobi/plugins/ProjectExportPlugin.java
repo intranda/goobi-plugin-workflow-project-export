@@ -178,7 +178,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
         finishStepName = config.getString("/finishedStepName");
         closeStepName = config.getString("/closeStepName");
-        if (StringUtils.isNotBlank(exportFolder)) {
+        if (StringUtils.isBlank(exportFolder)) {
             exportFolder = config.getString("/exportDirectory");
         }
     }

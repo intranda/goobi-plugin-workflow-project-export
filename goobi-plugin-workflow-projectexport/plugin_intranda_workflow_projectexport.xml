@@ -1,8 +1,8 @@
 <config_plugin>
     <config>
         <project>SampleProject</project>
-        <finishedStepName>Name of the step that must be finished</finishedStepName>
-        <closeStepName>Name of the step to close after export</closeStepName>
+        <finishedStepName>closed step</finishedStepName>
+        <closeStepName>test step to close</closeStepName>
         <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
     </config>
 

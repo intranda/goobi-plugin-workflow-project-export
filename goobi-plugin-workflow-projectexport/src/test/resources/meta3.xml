@@ -20,8 +20,8 @@
                              <goobi:metadata name="NLICatalog">https://www.nli.org.il/en/books/NNL_ALEPH001242660/NLI</goobi:metadata>
                              <goobi:metadata name="AuthorPreferredHeb">פארדו, דוד בן יעקב, 1718-1790</goobi:metadata>
                              <goobi:metadata name="TitleDocMain">ספר מזמור לדוד : (סובב הולך על ... ספר ... פירות גינוסר) / דברי ... כמוהר&quot;ר דוד פארדו ...</goobi:metadata>
-                             <goobi:metadata name="AdditionalAuthor">פרדו, יצחק בן דוד</goobi:metadata>
-                             <goobi:metadata name="AdditionalAuthor">פינטו, דוד בן אברהם</goobi:metadata>
+                             <goobi:metadata name="AdditionalAuthorHeb">פרדו, יצחק בן דוד</goobi:metadata>
+                             <goobi:metadata name="AdditionalAuthorHeb">פינטו, דוד בן אברהם</goobi:metadata>
                              <goobi:metadata name="PlaceOfPublication">Livorno (Italy)</goobi:metadata>
                              <goobi:metadata name="AuthorPreferred">Pardo, David Samuel ben Jacob,</goobi:metadata>
                              <goobi:metadata name="AuthorPreferredOther">Pardo, David,; פרדו, דוד בן יעקב,; פרדו, חיים דוד בן יעקב,; פארדו, חיים דוד בן יעקב,</goobi:metadata>

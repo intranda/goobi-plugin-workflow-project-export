@@ -1,10 +1,9 @@
 <config_plugin>
     <config>
         <project>SampleProject</project>
-        <finishedStepName>closed step</finishedStepName>
-        <closeStepName>test step to close</closeStepName>
+        <finishedStepName>Name of the step that must be finished</finishedStepName>
+        <closeStepName>Name of the step to close after export</closeStepName>
     </config>
-
 
     <config>
         <!-- name of the project, can be repeated. Use * for any project -->
@@ -14,5 +13,6 @@
         <!-- close this step after the export was successful -->
         <closeStepName></closeStepName>
     </config>
+
 
 </config_plugin>

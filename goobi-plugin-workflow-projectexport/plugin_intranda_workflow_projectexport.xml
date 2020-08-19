@@ -3,6 +3,7 @@
         <project>SampleProject</project>
         <finishedStepName>Name of the step that must be finished</finishedStepName>
         <closeStepName>Name of the step to close after export</closeStepName>
+        <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
     </config>
 
     <config>
@@ -12,6 +13,8 @@
         <finishedStepName></finishedStepName>
         <!-- close this step after the export was successful -->
         <closeStepName></closeStepName>
+        <!-- write the export into this directory -->
+        <exportDirectory></exportDirectory>
     </config>
 
 

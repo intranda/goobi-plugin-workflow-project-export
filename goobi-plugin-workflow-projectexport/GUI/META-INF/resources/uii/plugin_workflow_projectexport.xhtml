@@ -34,16 +34,16 @@
                         <div class="box-content">
                             <h:form id="projectExportForm">
 
-<h:panelGroup rendered="#{!NavigationForm.workflowPlugin.exportAllowed}">
-<h:outputText value="#{NavigationForm.workflowPlugin.projectValidationError}" styleClass="alert alert-danger"/>
-
-</h:panelGroup>
-
+                                <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.exportAllowed}">
+                                    <h:outputText
+                                        value="#{NavigationForm.workflowPlugin.projectValidationError}"
+                                        styleClass="alert alert-danger" />
+                                </h:panelGroup>
                                 <div
                                     class="row"
                                     style="padding: 15px;">
-                                    
-                                    <intranda:formInputDropDownAjax                                       
+
+                                    <intranda:formInputDropDownAjax
                                         ajaxEvent="change"
                                         ajaxRender="projectExportForm"
                                         label="#{msgs.projekt}"
@@ -52,14 +52,24 @@
                                         name="project"
                                         selectItems="#{NavigationForm.workflowPlugin.allProjectNames}"
                                         fieldStyle="form-control"
-                                        required="false" 
+                                        required="false"
                                         itemValue="#{var}"
-                                        itemLabel="#{var}"
-                                        />
-
-
-
+                                        itemLabel="#{var}" />
                                 </div>
+
+                                <h:panelGroup
+                                    layout="block"
+                                    styleClass="form-actions"
+                                    rendered="#{NavigationForm.workflowPlugin.exportAllowed}">
+                                    <h:commandLink
+                                        styleClass="btn submitOnEnter pull-right font-size-s margin-bottom-most"
+                                        id="export"
+                                        type="submit"
+                                        action="#{NavigationForm.workflowPlugin.prepareExport}">
+                                        <i class="fa fa-globe margin-right-5"></i>
+                                        <h:outputText value="#{msgs.exportFiles}" />
+                                    </h:commandLink>
+                                </h:panelGroup>
 
 
                             </h:form>

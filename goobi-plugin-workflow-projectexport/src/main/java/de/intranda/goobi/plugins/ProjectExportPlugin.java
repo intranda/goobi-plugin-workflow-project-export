@@ -550,6 +550,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             log.error(e);
             error = true;
         }
+
+        Helper.setMeldung("ExportFinished");
         // close step if no error occurred
         if (!error) {
             for (Process process : processesInProject) {

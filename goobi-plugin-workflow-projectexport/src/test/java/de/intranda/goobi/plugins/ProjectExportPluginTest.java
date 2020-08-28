@@ -227,6 +227,15 @@ public class ProjectExportPluginTest {
         } catch (IOException e) {
         }
         List<Processproperty> properties = createProperties();
+        if (id==2) {
+            properties.add(createProperty("NLI_Number", "990010890590205171"));
+        } else if (id==3) {
+            properties.add(createProperty("NLI_Number", "990012426600205171"));
+        } else if (id==4) {
+            properties.add(createProperty("NLI_Number", "990018871250205171"));
+
+        }
+
 
         p.setEigenschaften(properties);
         return p;
@@ -249,7 +258,7 @@ public class ProjectExportPluginTest {
         List<Processproperty> properties = createProperties();
 
         properties.add(createProperty("notes_01", "Manṭovah :  Be-vet Yehudah Shemuʼel mi-Prushah u-veno,   [386] 1626."));
-
+        properties.add(createProperty("NLI_Number", "990012587030205171"));
         process.setEigenschaften(properties);
         return process;
     }
@@ -262,7 +271,7 @@ public class ProjectExportPluginTest {
         properties.add(createProperty("Provenance", "Y"));
         properties.add(createProperty("Book is important", "yes"));
         properties.add(createProperty("Reason for insignificance", ""));
-        properties.add(createProperty("NLI identifier", "990012587030205171"));
+
         properties.add(createProperty("Reason for missing NLI identifier", ""));
         properties.add(createProperty("OCLC identifier", "319712882"));
 

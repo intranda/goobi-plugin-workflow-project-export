@@ -95,6 +95,11 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     @Setter
     private List<Process> testList;
 
+    
+    /**
+     * Getter to list all existing active projects
+     * @return List of Strings
+     */
     public List<String> getAllProjectNames() {
         if (allProjectNames == null) {
             allProjectNames = ProjectManager.getAllProjectTitles(true);
@@ -102,6 +107,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         return allProjectNames;
     }
 
+    /**
+     * Setter to define the project to use
+     * @param selectedProjectName the title of the project to use
+     */
     public void setProjectName(String selectedProjectName) {
         if (StringUtils.isBlank(this.projectName) || !this.projectName.equals(selectedProjectName)) {
             this.projectName = selectedProjectName;
@@ -119,6 +128,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
     }
 
+    /**
+     * Find out how many processes in the project are still not in the right status to be interpreted as finished
+     * @return integer value with number of processes
+     */
     private int getNumberOfUnfinishedTasks() {
         if (!testDatabase) {
             Connection connection = null;
@@ -148,6 +161,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         return 0;
     }
 
+    /**
+     * Create a list of all processes of the selected project based on the project title
+     * @return List of processes
+     */
     private List<Process> getProcessList() {
         if (!testDatabase) {
             return ProcessManager.getProcesses("prozesse.titel", "projekte.titel = '" + projectName + "' ");
@@ -155,7 +172,11 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             return testList;
         }
     }
-
+    
+    /**
+     * private method to read in all parameters from the configuration file
+     * @param projectName
+     */
     private void readConfiguration(String projectName) {
 
         HierarchicalConfiguration config = null;
@@ -183,6 +204,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
     }
 
+    /**
+     * Execute the export to write the excel file and the images to the given export folder
+     */
     public void prepareExport() {
 
         List<Process> processesInProject = getProcessList();

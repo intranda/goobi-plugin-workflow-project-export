@@ -264,9 +264,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     String marginalia = "";
                     String provenance = "";
                     String oclcIdentifier = "";
-                    String notes_01 = ""; // TODO get it from correct field
-                    String titleLat = ""; // TODO get it from correct field
-                    String notes_02 = ""; // TODO get it from correct field
+                    String notes_01 = "";
+                    String titleLat = ""; 
+                    String notes_02 = "";
                     String copies = "";
                     String title = "";
                     String identifier = "";
@@ -291,12 +291,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             marginalia = prop.getWert();
                         } else if (prop.getTitel().equals("Provenance")) {
                             provenance = prop.getWert();
-                        } else if (prop.getTitel().equals("OCLC identifier")) {
-                            oclcIdentifier = prop.getWert();
                         } else if (prop.getTitel().equals("Number of Copies")) {
                             copies = prop.getWert();
-                            //                        } else if (prop.getTitel().equals("notes_01")) {
-                            //                            notes01 = prop.getWert();
+                        } else if (prop.getTitel().equals("NLI_Number")) {
+                            identifier = prop.getWert();
                         }
 
                     }
@@ -308,8 +306,14 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     for (Metadata md : logical.getAllMetadata()) {
                         if (md.getType().getName().equals("TitleDocMain")) {
                             title = md.getValue();
-                        } else if (md.getType().getName().equals("AlmaID")) {
-                            identifier = md.getValue();
+                        } else if (md.getType().getName().equals("OtherTitle")) {
+                            titleLat = md.getValue();
+                        } else if (md.getType().getName().equals("OclcID")) {
+                            oclcIdentifier = md.getValue();
+                        } else if (md.getType().getName().equals("Notes01")) {
+                            notes_01 = md.getValue();
+                        } else if (md.getType().getName().equals("Notes02")) {
+                            notes_02 = md.getValue();
                         } else if (md.getType().getName().equals("shelfmarksource")) {
                             shelfmark = md.getValue();
                         } else if (md.getType().getName().equals("AuthorPreferred")) {

@@ -82,7 +82,11 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     private String projectValidationError = null;
     @Setter
     private String exportFolder;
-
+    @Setter
+    private String imageFolder = "media";
+    @Getter
+    private String projectSizeMessage = null;
+    
     // used for tests
     @Setter
     private boolean testDatabase;
@@ -108,8 +112,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         if (StringUtils.isBlank(this.projectName) || !this.projectName.equals(selectedProjectName)) {
             this.projectName = selectedProjectName;
             readConfiguration(projectName);
-
-            if (getProcessList().size()==0) {
+            projectSizeMessage = null;
+            int projectSize = getProcessList().size();
+            if (projectSize==0) {
                 stepsComplete = false;
                 exportPossible = false;
                 String[] parameter = { projectName };
@@ -121,8 +126,12 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 if (numberOfTasks == 0) {
                     stepsComplete = true;
                     projectValidationError = null;
+                    String[] parameter = { String.valueOf(projectSize) };
+                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", parameter);
                 } else {
                     stepsComplete = false;
+                    String[] param = { String.valueOf(projectSize) };
+                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", param);
                     String[] parameter = { projectName, String.valueOf(numberOfTasks) };
                     projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_openSteps", parameter);
                     Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
@@ -141,7 +150,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             StringBuilder query = new StringBuilder();
             query.append("SELECT COUNT(*) ");
             query.append("FROM prozesse WHERE ");
-            query.append("projekteId = (SELECT projekteID FROM projekte WHERE titel = ?) ");
+            query.append("istTemplate = false and projekteId = (SELECT projekteID FROM projekte WHERE titel = ?) ");
             query.append("AND prozesseID NOT IN ( ");
             query.append("SELECT prozesseId FROM schritte WHERE titel = ? AND Bearbeitungsstatus = 3) ");
             try {
@@ -170,7 +179,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
      */
     private List<Process> getProcessList() {
         if (!testDatabase) {
-            return ProcessManager.getProcesses("prozesse.titel", "projekte.titel = '" + projectName + "' ");
+            return ProcessManager.getProcesses("prozesse.titel", "prozesse.istTemplate = false and projekte.titel = '" + projectName + "' ");
         } else {
             return testList;
         }
@@ -202,6 +211,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
         finishStepName = config.getString("/finishedStepName");
         closeStepName = config.getString("/closeStepName");
+        imageFolder = config.getString("/imageFolder", "media");
         if (StringUtils.isBlank(exportFolder)) {
             exportFolder = config.getString("/exportDirectory");
         }
@@ -551,8 +561,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         rowCounter = rowCounter + 1;
                     }
                     // export images
-                    Path source = Paths.get(process.getImagesTifDirectory(false));
-                    Path target = Paths.get(exportFolder, identifier);
+                    Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));
+                    Path target = Paths.get(exportFolder, projectName, identifier);
                     if (!Files.exists(target)) {
                         Files.createDirectories(target);
                     }
@@ -565,7 +575,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
         // save/download excel
         try {
-            OutputStream out = Files.newOutputStream(Paths.get(exportFolder, "metadata.xlsx"));
+            OutputStream out = Files.newOutputStream(Paths.get(exportFolder, projectName, "metadata.xlsx"));
             wb.write(out);
             out.flush();
             out.close();
@@ -575,7 +585,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             error = true;
         }
 
-        Helper.setMeldung("ExportFinished");
+        Helper.setMeldung("plugin_workflow_projectexport_exportFinished");
         // close step if no error occurred
         if (!error && stepsComplete) {
             for (Process process : processesInProject) {

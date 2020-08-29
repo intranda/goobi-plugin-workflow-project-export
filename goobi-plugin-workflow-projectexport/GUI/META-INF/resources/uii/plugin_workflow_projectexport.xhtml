@@ -47,6 +47,12 @@
                                         hidePleaseSelectMessage="false"/>
                                 </div>
 
+                                <h:panelGroup rendered="#{NavigationForm.workflowPlugin.exportPossible and NavigationForm.workflowPlugin.projectSizeMessage != null}">
+                                    <h:outputText
+                                        value="#{NavigationForm.workflowPlugin.projectSizeMessage}"
+                                        styleClass="alert alert-info block text-center" style="margin-top:10px; padding:10px;" />
+                                </h:panelGroup>
+                                
                                 <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.stepsComplete and NavigationForm.workflowPlugin.projectValidationError != null}">
                                     <h:outputText
                                         value="#{NavigationForm.workflowPlugin.projectValidationError}"

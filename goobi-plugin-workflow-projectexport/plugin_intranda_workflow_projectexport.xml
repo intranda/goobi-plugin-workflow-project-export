@@ -1,21 +1,16 @@
 <config_plugin>
-    <config>
-        <project>SampleProject</project>
-        <finishedStepName>closed step</finishedStepName>
-        <closeStepName>test step to close</closeStepName>
-        <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
-    </config>
 
     <config>
         <!-- name of the project, can be repeated. Use * for any project -->
         <project>*</project>
         <!-- check if all proceses of the project have finished this task -->
-        <finishedStepName></finishedStepName>
+        <finishedStepName>Metadata enrichment</finishedStepName>
         <!-- close this step after the export was successful -->
-        <closeStepName></closeStepName>
+        <closeStepName>Export</closeStepName>
+        <!-- define which image folder (master|media|jpeg|source|...) shall be used for the export -->
+        <imageFolder>media</imageFolder>
         <!-- write the export into this directory -->
-        <exportDirectory></exportDirectory>
+        <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
     </config>
-
 
 </config_plugin>

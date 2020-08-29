@@ -14,14 +14,13 @@
 
     <composite:implementation>
 
-
-
         <h:outputText
             styleClass="alert alert-danger block margin-top-most"
             value="#{msgs.noAccessAllowed} Plugin_Goobi_ProjectExport"
             rendered="#{!LoginForm.hasRole('Plugin_Goobi_ProjectExport')}" />
 
         <h:panelGroup rendered="#{LoginForm.hasRole('Plugin_Goobi_ProjectExport')}">
+                            <h:form id="projectExportForm">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="box box-color box-bordered lightgrey">
@@ -32,17 +31,7 @@
                             </h3>
                         </div>
                         <div class="box-content">
-                            <h:form id="projectExportForm">
-
-                                <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.exportAllowed}">
-                                    <h:outputText
-                                        value="#{NavigationForm.workflowPlugin.projectValidationError}"
-                                        styleClass="alert alert-danger" />
-                                </h:panelGroup>
-                                <div
-                                    class="row"
-                                    style="padding: 15px;">
-
+                                <div class="row">
                                     <intranda:formInputDropDownAjax
                                         ajaxEvent="change"
                                         ajaxRender="projectExportForm"
@@ -54,15 +43,21 @@
                                         fieldStyle="form-control"
                                         required="false"
                                         itemValue="#{var}"
-                                        itemLabel="#{var}" />
+                                        itemLabel="#{var}" 
+                                        hidePleaseSelectMessage="false"/>
                                 </div>
 
+                                <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.stepsComplete and NavigationForm.workflowPlugin.projectValidationError != null}">
+                                    <h:outputText
+                                        value="#{NavigationForm.workflowPlugin.projectValidationError}"
+                                        styleClass="alert alert-warning block text-center" style="margin-top:10px; padding:10px;" />
+                                </h:panelGroup>
+
                                 <h:panelGroup
-                                    layout="block"
                                     styleClass="form-actions"
-                                    rendered="#{NavigationForm.workflowPlugin.exportAllowed}">
+                                    rendered="#{NavigationForm.workflowPlugin.exportPossible}">
                                     <h:commandLink
-                                        styleClass="btn submitOnEnter pull-right font-size-s margin-bottom-most"
+                                        styleClass="btn btn-primary submitOnEnter pull-right font-size-s margin-top-regular"
                                         id="export"
                                         type="submit"
                                         action="#{NavigationForm.workflowPlugin.prepareExport}">
@@ -70,16 +65,11 @@
                                         <h:outputText value="#{msgs.exportFiles}" />
                                     </h:commandLink>
                                 </h:panelGroup>
-
-
-                            </h:form>
-
-
-
                         </div>
                     </div>
                 </div>
             </div>
+                            </h:form>
         </h:panelGroup>
 
 

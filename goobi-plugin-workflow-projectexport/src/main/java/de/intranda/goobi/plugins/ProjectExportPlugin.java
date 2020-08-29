@@ -62,30 +62,24 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
     @Getter
     private String title = "intranda_workflow_projectexport";
-
     @Getter
     private PluginType type = PluginType.Workflow;
-
     @Getter
     private String gui = "/uii/plugin_workflow_projectexport.xhtml";
-
     @Getter
     private String projectName;
-
     @Setter
     private List<String> allProjectNames = null;
-
     @Getter
     private String finishStepName;
     @Getter
     private String closeStepName;
-
     @Getter
-    private boolean exportAllowed = false;
-
+    private boolean exportPossible = false;
+    @Getter
+    private boolean stepsComplete = false;
     @Getter
     private String projectValidationError = null;
-
     @Setter
     private String exportFolder;
 
@@ -95,7 +89,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     @Setter
     private List<Process> testList;
 
-    
     /**
      * Getter to list all existing active projects
      * @return List of Strings
@@ -116,14 +109,24 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             this.projectName = selectedProjectName;
             readConfiguration(projectName);
 
-            int numberOfTasks = getNumberOfUnfinishedTasks();
-            if (numberOfTasks == 0) {
-                exportAllowed = true;
-                projectValidationError = null;
-            } else {
-                exportAllowed = false;
-                projectValidationError = "The project '" + projectName + "' has " + numberOfTasks + " unfinished processes";
+            if (getProcessList().size()==0) {
+                stepsComplete = false;
+                exportPossible = false;
+                String[] parameter = { projectName };
+                projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_emptyProject", parameter);
                 Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
+            } else {
+                int numberOfTasks = getNumberOfUnfinishedTasks();
+                exportPossible = true;
+                if (numberOfTasks == 0) {
+                    stepsComplete = true;
+                    projectValidationError = null;
+                } else {
+                    stepsComplete = false;
+                    String[] parameter = { projectName, String.valueOf(numberOfTasks) };
+                    projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_openSteps", parameter);
+                    Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
+                }
             }
         }
     }
@@ -574,7 +577,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         Helper.setMeldung("ExportFinished");
         // close step if no error occurred
-        if (!error) {
+        if (!error && stepsComplete) {
             for (Process process : processesInProject) {
                 for (Step step : process.getSchritte()) {
                     if (closeStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() != StepStatus.DEACTIVATED

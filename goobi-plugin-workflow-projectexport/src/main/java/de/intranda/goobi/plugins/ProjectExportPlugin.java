@@ -1,13 +1,22 @@
 package de.intranda.goobi.plugins;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -26,6 +35,7 @@ import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.CloseStepHelper;
+import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.enums.StepStatus;
@@ -86,6 +96,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     private String imageFolder = "media";
     @Getter
     private String projectSizeMessage = null;
+    @Getter
+    private boolean allowZipDownload = true; 
     
     // used for tests
     @Setter
@@ -212,6 +224,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         finishStepName = config.getString("/finishedStepName");
         closeStepName = config.getString("/closeStepName");
         imageFolder = config.getString("/imageFolder", "media");
+        allowZipDownload = config.getBoolean("/allowZipDownload", true);
         if (StringUtils.isBlank(exportFolder)) {
             exportFolder = config.getString("/exportDirectory");
         }
@@ -221,7 +234,17 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
      * Execute the export to write the excel file and the images to the given export folder
      */
     public void prepareExport() {
-
+        // first try to delete previous project exports
+        try {
+            Path exporttarget = Paths.get(exportFolder, projectName);
+            Files.walk(exporttarget)
+            .sorted(Comparator.reverseOrder())
+            .map(Path::toFile)
+            .forEach(File::delete);
+        } catch (IOException e) {
+            log.error("Error while deleting previous export results", e);
+        }
+        
         List<Process> processesInProject = getProcessList();
         //Properties:
         //    Marginalia  N
@@ -599,6 +622,59 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 }
             }
         }
+        
+        // now zip the entire exported project and allow a download
+        if (allowZipDownload) {
+            try {
+                FacesContext facesContext = FacesContextHelper.getCurrentFacesContext();
+                ExternalContext ec = facesContext.getExternalContext();
+                ec.responseReset();
+                ec.setResponseContentType("application/zip");
+
+                ec.setResponseHeader("Content-Disposition", "attachment; filename=" + projectName + ".zip");
+                OutputStream responseOutputStream = ec.getResponseOutputStream();
+                ZipOutputStream out = new ZipOutputStream(responseOutputStream);
+
+                Path project = Paths.get(exportFolder, projectName);
+                zipFolder("", project, out);
+                out.flush();
+                out.close();
+
+                facesContext.responseComplete();
+            } catch (IOException e) {
+                log.error(e);
+            } finally {
+            }
+        }
     }
 
+    /**
+     * zip a given folder and go into subfolders recursively
+     * 
+     * @param zipBasePath the basepath inside of the zip file
+     * @param path the folder to be run through
+     * @param out the zip output stream
+     * @throws IOException
+     */
+    private void zipFolder(String zipBasePath, Path path, ZipOutputStream out) throws IOException {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            for (Path entry : stream) {
+                if (Files.isDirectory(entry)) {
+                    String p = zipBasePath + entry.getFileName() + "/";
+                    zipFolder(p, entry, out);
+                } else {
+                    InputStream in = StorageProvider.getInstance().newInputStream(entry);
+                    out.putNextEntry(new ZipEntry(zipBasePath + entry.getFileName().toString()));
+                    byte[] b = new byte[1024];
+                    int count;
+                    while ((count = in.read(b)) > 0) {
+                        out.write(b, 0, count);
+                    }
+                    in.close();
+                }
+            }
+        }
+    }
+    
+    
 }

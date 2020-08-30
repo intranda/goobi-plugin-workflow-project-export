@@ -67,7 +67,7 @@
                                         id="export"
                                         type="submit"
                                         action="#{NavigationForm.workflowPlugin.prepareExport}">
-                                        <i class="fa fa-globe margin-right-5"></i>
+                                        <i class="fa #{NavigationForm.workflowPlugin.allowZipDownload?'fa-download':'fa-globe'} margin-right-5"></i>
                                         <h:outputText value="#{msgs.exportFiles}" />
                                     </h:commandLink>
                                 </h:panelGroup>

@@ -237,10 +237,12 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         // first try to delete previous project exports
         try {
             Path exporttarget = Paths.get(exportFolder, projectName);
-            Files.walk(exporttarget)
-            .sorted(Comparator.reverseOrder())
-            .map(Path::toFile)
-            .forEach(File::delete);
+            if (Files.exists(exporttarget)) {                
+                Files.walk(exporttarget)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+            }
         } catch (IOException e) {
             log.error("Error while deleting previous export results", e);
         }

@@ -164,7 +164,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             query.append("FROM prozesse WHERE ");
             query.append("istTemplate = false and projekteId = (SELECT projekteID FROM projekte WHERE titel = ?) ");
             query.append("AND prozesseID NOT IN ( ");
-            query.append("SELECT prozesseId FROM schritte WHERE titel = ? AND Bearbeitungsstatus = 3) ");
+            query.append("SELECT prozesseId FROM schritte WHERE titel = ? AND (Bearbeitungsstatus = 3 OR Bearbeitungsstatus = 5)) ");
             try {
                 connection = MySQLHelper.getInstance().getConnection();
                 int currentValue =
@@ -301,8 +301,16 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         int rowCounter = 1;
         boolean error = false;
+        processloop:
         for (Process process : processesInProject) {
 
+            // just use this process if the step to check is in valid status
+            for (Step step : process.getSchritte()) {
+                if (finishStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() == StepStatus.DEACTIVATED) {
+                    continue processloop;
+                }
+            }
+            
             // open mets file
             try {
                 Fileformat fileformat = process.readMetadataFile();
@@ -581,13 +589,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: calculated by GOOBI, or provided by the institutino in there excel
                         // Clarification: This is to be taken from the excel upload of the inventory spreadsheet
                         // Example: 1
-                        imageRow.createCell(29).setCellValue(StringUtils.isBlank(copies) ? "1" : copies);
+                        imageRow.createCell(29).setCellValue(StringUtils.isBlank(copies) ? "" : copies);
 
                         rowCounter = rowCounter + 1;
                     }
                     // export images
                     Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));
-                    Path target = Paths.get(exportFolder, projectName, identifier);
+                    Path target = Paths.get(exportFolder, projectName, process.getTitel());
                     if (!Files.exists(target)) {
                         Files.createDirectories(target);
                     }

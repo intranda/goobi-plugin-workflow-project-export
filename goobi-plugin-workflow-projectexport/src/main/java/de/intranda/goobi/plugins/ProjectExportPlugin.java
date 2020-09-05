@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -30,8 +31,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.goobi.beans.Process;
 import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
+import org.goobi.production.cli.helper.StringPair;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
+import org.goobi.vocabulary.Field;
+import org.goobi.vocabulary.VocabRecord;
+import org.goobi.vocabulary.Vocabulary;
 
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.CloseStepHelper;
@@ -44,6 +49,7 @@ import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.persistence.managers.MySQLHelper;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.ProjectManager;
+import de.sub.goobi.persistence.managers.VocabularyManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -268,33 +274,33 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         // create header
         Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("file path");
-        headerRow.createCell(1).setCellValue("shots sequence");
+        headerRow.createCell(0).setCellValue("File path");
+        headerRow.createCell(1).setCellValue("Shots sequence");
         headerRow.createCell(2).setCellValue("Prime Image Flag");
-        headerRow.createCell(3).setCellValue("order");
-        headerRow.createCell(4).setCellValue("identification");
-        headerRow.createCell(5).setCellValue("author lat");
+        headerRow.createCell(3).setCellValue("Order");
+        headerRow.createCell(4).setCellValue("Identification");
+        headerRow.createCell(5).setCellValue("Author lat");
         headerRow.createCell(6).setCellValue("Author in Hebrew");
         headerRow.createCell(7).setCellValue("Other Name Forms");
-        headerRow.createCell(8).setCellValue("title lat");
-        headerRow.createCell(9).setCellValue("title heb");
+        headerRow.createCell(8).setCellValue("Litle lat");
+        headerRow.createCell(9).setCellValue("Title heb");
         headerRow.createCell(10).setCellValue("NLI number");
         headerRow.createCell(11).setCellValue("OCLC number");
-        headerRow.createCell(12).setCellValue("notes_01");
+        headerRow.createCell(12).setCellValue("Notes_01");
         headerRow.createCell(13).setCellValue("Normalised Year");
         headerRow.createCell(14).setCellValue("Normalised City");
-        headerRow.createCell(15).setCellValue("reference forms of city.");
+        headerRow.createCell(15).setCellValue("Reference forms of city.");
         headerRow.createCell(16).setCellValue("Normalised Publisher");
         headerRow.createCell(17).setCellValue("Other name forms for the Publisher");
-        headerRow.createCell(18).setCellValue("notes_02");
+        headerRow.createCell(18).setCellValue("Notes_02");
         headerRow.createCell(19).setCellValue("Link 1 NLI catalog");
         headerRow.createCell(20).setCellValue("Etichetta 1");
         headerRow.createCell(21).setCellValue("Link 2 website of keeping institution");
         headerRow.createCell(22).setCellValue("Etichetta 2 keeping institution");
-        headerRow.createCell(23).setCellValue("provenance");
+        headerRow.createCell(23).setCellValue("Provenance");
         headerRow.createCell(24).setCellValue("Marginalia");
-        headerRow.createCell(25).setCellValue("censorship");
-        headerRow.createCell(26).setCellValue("additional authors in Latin");
+        headerRow.createCell(25).setCellValue("Censorship");
+        headerRow.createCell(26).setCellValue("Additional authors in Latin");
         headerRow.createCell(27).setCellValue("Additional authors in Hebrew");
         headerRow.createCell(28).setCellValue("Additional authors references");
         headerRow.createCell(29).setCellValue("Number of copies");
@@ -407,10 +413,22 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             cityOther = md.getValue();
                         } else if (md.getType().getName().equals("Publisher")) {
                             publisherLat = md.getValue();
+                            // once we found the publisher name get other writing forms from Vocabulary
+                            String vocabularyName = "Publishers";
+                            List<StringPair> vocabularySearchFields = new ArrayList<>();
+                            vocabularySearchFields.add(new StringPair("Corrected value", publisherLat));
+                            List<VocabRecord> records = VocabularyManager.findRecords(vocabularyName, vocabularySearchFields);
+                            if (records != null && records.size() > 0) {
+                                VocabRecord vr = records.get(0);
+                                for (Field f : vr.getFields()) {
+                                    if (f.getDefinition().getLabel().equals("Name variants")) {
+                                        publisherOther = f.getValue();
+                                        break;
+                                    }
+                                }
+                            }
                         } else if (md.getType().getName().equals("PublisherHeb")) {
                             publisherHeb = md.getValue();
-                        } else if (md.getType().getName().equals("PublisherOther")) {
-                            publisherOther = md.getValue();
                         } else if (md.getType().getName().equals("NLICatalog")) {
                             nliLink = md.getValue();
                         } else if (md.getType().getName().equals("AdditionalAuthor")) {

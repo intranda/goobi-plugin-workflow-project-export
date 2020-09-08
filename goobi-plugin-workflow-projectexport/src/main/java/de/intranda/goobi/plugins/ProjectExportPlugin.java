@@ -413,17 +413,20 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             cityOther = md.getValue();
                         } else if (md.getType().getName().equals("Publisher")) {
                             publisherLat = md.getValue();
+                            
                             // once we found the publisher name get other writing forms from Vocabulary
-                            String vocabularyName = "Publishers";
-                            List<StringPair> vocabularySearchFields = new ArrayList<>();
-                            vocabularySearchFields.add(new StringPair("Corrected value", publisherLat));
-                            List<VocabRecord> records = VocabularyManager.findRecords(vocabularyName, vocabularySearchFields);
-                            if (records != null && records.size() > 0) {
-                                VocabRecord vr = records.get(0);
-                                for (Field f : vr.getFields()) {
-                                    if (f.getDefinition().getLabel().equals("Name variants")) {
-                                        publisherOther = f.getValue();
-                                        break;
+                            String vocabRecordUrl = md.getAuthorityValue();
+                            if (vocabRecordUrl!=null && vocabRecordUrl.length()>0) {
+                                String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
+                                vocabRecordUrl = vocabRecordUrl.substring(0,vocabRecordUrl.lastIndexOf("/"));
+                                String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
+                                VocabRecord vr = VocabularyManager.getRecord(Integer.parseInt(vocabRecordID), Integer.parseInt(vocabID));
+                                if (vr!=null) {
+                                    for (Field f : vr.getFields()) {
+                                        if (f.getDefinition().getLabel().equals("Name variants")) {
+                                            publisherOther = f.getValue();
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -704,5 +707,15 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         }
     }
     
-    
+ 
+    public static void main(String[] args) {
+        String vocabRecordUrl = "http://localhost:8080/goobi/api/vocabulary/records/3/14";
+        String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
+        vocabRecordUrl = vocabRecordUrl.substring(0,vocabRecordUrl.lastIndexOf("/"));
+        String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
+        int vid = Integer.parseInt(vocabID);
+        int vrid = Integer.parseInt(vocabRecordID);
+        System.out.println(vocabID + " - " + vid);
+        System.out.println(vocabRecordID + " - " + vrid);
+    }
 }

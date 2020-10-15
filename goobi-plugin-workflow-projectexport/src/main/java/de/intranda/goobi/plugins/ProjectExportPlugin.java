@@ -31,13 +31,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.goobi.beans.Process;
 import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
-import org.goobi.production.cli.helper.StringPair;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 import org.goobi.vocabulary.Field;
 import org.goobi.vocabulary.VocabRecord;
-import org.goobi.vocabulary.Vocabulary;
 
+import de.intranda.digiverso.normdataimporter.NormDataImporter;
+import de.intranda.digiverso.normdataimporter.model.MarcRecord;
+import de.intranda.digiverso.normdataimporter.model.MarcRecord.DatabaseUrl;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.CloseStepHelper;
 import de.sub.goobi.helper.FacesContextHelper;
@@ -103,8 +104,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     @Getter
     private String projectSizeMessage = null;
     @Getter
-    private boolean allowZipDownload = true; 
-    
+    private boolean allowZipDownload = true;
+
     // used for tests
     @Setter
     private boolean testDatabase;
@@ -113,6 +114,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
     /**
      * Getter to list all existing active projects
+     * 
      * @return List of Strings
      */
     public List<String> getAllProjectNames() {
@@ -124,6 +126,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
     /**
      * Setter to define the project to use
+     * 
      * @param selectedProjectName the title of the project to use
      */
     public void setProjectName(String selectedProjectName) {
@@ -132,7 +135,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             readConfiguration(projectName);
             projectSizeMessage = null;
             int projectSize = getProcessList().size();
-            if (projectSize==0) {
+            if (projectSize == 0) {
                 stepsComplete = false;
                 exportPossible = false;
                 String[] parameter = { projectName };
@@ -160,6 +163,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
     /**
      * Find out how many processes in the project are still not in the right status to be interpreted as finished
+     * 
      * @return integer value with number of processes
      */
     private int getNumberOfUnfinishedTasks() {
@@ -193,6 +197,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
     /**
      * Create a list of all processes of the selected project based on the project title
+     * 
      * @return List of processes
      */
     private List<Process> getProcessList() {
@@ -202,9 +207,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             return testList;
         }
     }
-    
+
     /**
      * private method to read in all parameters from the configuration file
+     * 
      * @param projectName
      */
     private void readConfiguration(String projectName) {
@@ -243,16 +249,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         // first try to delete previous project exports
         try {
             Path exporttarget = Paths.get(exportFolder, projectName);
-            if (Files.exists(exporttarget)) {                
-                Files.walk(exporttarget)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+            if (Files.exists(exporttarget)) {
+                Files.walk(exporttarget).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             }
         } catch (IOException e) {
             log.error("Error while deleting previous export results", e);
         }
-        
+
         List<Process> processesInProject = getProcessList();
         //Properties:
         //    Marginalia  N
@@ -307,8 +310,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         int rowCounter = 1;
         boolean error = false;
-        processloop:
-        for (Process process : processesInProject) {
+        processloop: for (Process process : processesInProject) {
 
             // just use this process if the step to check is in valid status
             for (Step step : process.getSchritte()) {
@@ -316,7 +318,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     continue processloop;
                 }
             }
-            
+
             // open mets file
             try {
                 Fileformat fileformat = process.readMetadataFile();
@@ -413,19 +415,64 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             cityOther = md.getValue();
                         } else if (md.getType().getName().equals("Publisher")) {
                             publisherLat = md.getValue();
-                            
+
                             // once we found the publisher name get other writing forms from Vocabulary
                             String vocabRecordUrl = md.getAuthorityValue();
-                            if (vocabRecordUrl!=null && vocabRecordUrl.length()>0) {
-                                String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
-                                vocabRecordUrl = vocabRecordUrl.substring(0,vocabRecordUrl.lastIndexOf("/"));
-                                String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
+                            if (vocabRecordUrl != null && vocabRecordUrl.length() > 0) {
+                                String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
+                                vocabRecordUrl = vocabRecordUrl.substring(0, vocabRecordUrl.lastIndexOf("/"));
+                                String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
                                 VocabRecord vr = VocabularyManager.getRecord(Integer.parseInt(vocabRecordID), Integer.parseInt(vocabID));
-                                if (vr!=null) {
+                                if (vr != null) {
+                                    String url = null;
+                                    String value = null;
                                     for (Field f : vr.getFields()) {
                                         if (f.getDefinition().getLabel().equals("Name variants")) {
                                             publisherOther = f.getValue();
-                                            break;
+                                        } else if (f.getDefinition().getLabel().equals("Authority URI")) {
+                                            url = f.getValue();
+                                        } else if (f.getDefinition().getLabel().equals("Value URI")) {
+                                            value = f.getValue();
+                                        }
+                                    }
+
+                                    if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(value) && url.contains("viaf")) {
+                                        url = url + value + "/marc21.xml";
+
+                                        MarcRecord recordToImport = NormDataImporter.getSingleMarcRecord("http://viaf.org/viaf/90722334/marc21.xml");
+                                        List<String> databases = new ArrayList<>();
+                                        databases.add("j9u");
+                                        DatabaseUrl currentUrl = null;
+                                        for (String database : databases) {
+                                            if (currentUrl == null) {
+                                                for (DatabaseUrl dbUrl : recordToImport.getAuthorityDatabaseUrls()) {
+                                                    if (dbUrl.getDatabaseCode().equalsIgnoreCase(database)) {
+                                                        currentUrl = dbUrl;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (currentUrl != null) {
+                                            recordToImport = NormDataImporter.getSingleMarcRecord(currentUrl.getMarcRecordUrl());
+                                            if (recordToImport != null) {
+                                                List<String> normalizedVariant = recordToImport.getSubFieldValues("100", null, null, "a", "b", "c");
+                                                List<String> otherVariants = recordToImport.getSubFieldValues("400", null, null, "a", "b", "c");
+
+                                                publisherLat = normalizedVariant.get(0);
+
+                                                if (otherVariants != null) {
+                                                    StringBuilder sb = new StringBuilder();
+                                                    for (String spelling : otherVariants) {
+                                                        if (sb.length() > 0) {
+                                                            sb.append("; ");
+                                                        }
+                                                        sb.append(spelling);
+                                                    }
+                                                    if (sb.length() > 0) {
+                                                        publisherOther = sb.toString();
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -653,7 +700,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 }
             }
         }
-        
+
         // now zip the entire exported project and allow a download
         if (allowZipDownload) {
             try {
@@ -706,13 +753,12 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             }
         }
     }
-    
- 
+
     public static void main(String[] args) {
         String vocabRecordUrl = "http://localhost:8080/goobi/api/vocabulary/records/3/14";
-        String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
-        vocabRecordUrl = vocabRecordUrl.substring(0,vocabRecordUrl.lastIndexOf("/"));
-        String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/")+1);
+        String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
+        vocabRecordUrl = vocabRecordUrl.substring(0, vocabRecordUrl.lastIndexOf("/"));
+        String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
         int vid = Integer.parseInt(vocabID);
         int vrid = Integer.parseInt(vocabRecordID);
         System.out.println(vocabID + " - " + vid);

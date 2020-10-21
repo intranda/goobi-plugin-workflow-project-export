@@ -439,7 +439,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                     if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(value) && url.contains("viaf")) {
                                         url = url + value + "/marc21.xml";
 
-                                        MarcRecord recordToImport = NormDataImporter.getSingleMarcRecord("http://viaf.org/viaf/90722334/marc21.xml");
+                                        MarcRecord recordToImport = NormDataImporter.getSingleMarcRecord(url);
                                         List<String> databases = new ArrayList<>();
                                         databases.add("j9u");
                                         DatabaseUrl currentUrl = null;

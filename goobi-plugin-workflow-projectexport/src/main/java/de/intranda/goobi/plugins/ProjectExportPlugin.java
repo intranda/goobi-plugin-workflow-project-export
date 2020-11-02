@@ -440,36 +440,39 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                         url = url + value + "/marc21.xml";
 
                                         MarcRecord recordToImport = NormDataImporter.getSingleMarcRecord(url);
-                                        List<String> databases = new ArrayList<>();
-                                        databases.add("j9u");
-                                        DatabaseUrl currentUrl = null;
-                                        for (String database : databases) {
-                                            if (currentUrl == null) {
-                                                for (DatabaseUrl dbUrl : recordToImport.getAuthorityDatabaseUrls()) {
-                                                    if (dbUrl.getDatabaseCode().equalsIgnoreCase(database)) {
-                                                        currentUrl = dbUrl;
+                                        if (recordToImport != null) {
+                                            List<String> databases = new ArrayList<>();
+                                            databases.add("j9u");
+                                            DatabaseUrl currentUrl = null;
+                                            for (String database : databases) {
+                                                if (currentUrl == null) {
+                                                    for (DatabaseUrl dbUrl : recordToImport.getAuthorityDatabaseUrls()) {
+                                                        if (dbUrl.getDatabaseCode().equalsIgnoreCase(database)) {
+                                                            currentUrl = dbUrl;
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        if (currentUrl != null) {
-                                            recordToImport = NormDataImporter.getSingleMarcRecord(currentUrl.getMarcRecordUrl());
-                                            if (recordToImport != null) {
-                                                List<String> normalizedVariant = recordToImport.getSubFieldValues("100", null, null, "a", "b", "c");
-                                                List<String> otherVariants = recordToImport.getSubFieldValues("400", null, null, "a", "b", "c");
+                                            if (currentUrl != null) {
+                                                recordToImport = NormDataImporter.getSingleMarcRecord(currentUrl.getMarcRecordUrl());
+                                                if (recordToImport != null) {
+                                                    List<String> normalizedVariant =
+                                                            recordToImport.getSubFieldValues("100", null, null, "a", "b", "c");
+                                                    List<String> otherVariants = recordToImport.getSubFieldValues("400", null, null, "a", "b", "c");
 
-                                                publisherLat = normalizedVariant.get(0);
+                                                    publisherLat = normalizedVariant.get(0);
 
-                                                if (otherVariants != null) {
-                                                    StringBuilder sb = new StringBuilder();
-                                                    for (String spelling : otherVariants) {
-                                                        if (sb.length() > 0) {
-                                                            sb.append("; ");
+                                                    if (otherVariants != null) {
+                                                        StringBuilder sb = new StringBuilder();
+                                                        for (String spelling : otherVariants) {
+                                                            if (sb.length() > 0) {
+                                                                sb.append("; ");
+                                                            }
+                                                            sb.append(spelling);
                                                         }
-                                                        sb.append(spelling);
-                                                    }
-                                                    if (sb.length() > 0) {
-                                                        publisherOther = sb.toString();
+                                                        if (sb.length() > 0) {
+                                                            publisherOther = sb.toString();
+                                                        }
                                                     }
                                                 }
                                             }

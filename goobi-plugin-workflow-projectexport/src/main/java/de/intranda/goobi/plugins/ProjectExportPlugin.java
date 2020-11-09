@@ -442,7 +442,11 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                         MarcRecord recordToImport = NormDataImporter.getSingleMarcRecord(url);
                                         if (recordToImport != null) {
                                             List<String> databases = new ArrayList<>();
-                                            databases.add("j9u");
+                                            databases.add("j9u"); // NLI
+                                            databases.add("lc"); // LOC
+                                            databases.add("bav"); // Vatican
+                                            databases.add("gnd"); // GND
+                                            databases.add("isni"); // ISNI
                                             DatabaseUrl currentUrl = null;
                                             for (String database : databases) {
                                                 if (currentUrl == null) {
@@ -453,6 +457,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                     }
                                                 }
                                             }
+                                            if (currentUrl == null) {
+                                                currentUrl = recordToImport.getAuthorityDatabaseUrls().get(0);
+                                            }
+
                                             if (currentUrl != null) {
                                                 recordToImport = NormDataImporter.getSingleMarcRecord(currentUrl.getMarcRecordUrl());
                                                 if (recordToImport != null) {

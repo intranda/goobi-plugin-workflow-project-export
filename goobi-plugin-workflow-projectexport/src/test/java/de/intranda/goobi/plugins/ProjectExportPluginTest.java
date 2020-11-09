@@ -154,8 +154,8 @@ public class ProjectExportPluginTest {
     public void testConfigurationFile() {
         ProjectExportPlugin plugin = new ProjectExportPlugin();
         plugin.setTestDatabase(true);
+        plugin.setTestList(new ArrayList<>());
         plugin.setProjectName("SampleProject");
-
         assertEquals("closed step", plugin.getFinishStepName());
     }
 
@@ -181,10 +181,10 @@ public class ProjectExportPluginTest {
 
         plugin.prepareExport();
 
-        Path excelFile = Paths.get(metadataDirectory.getAbsolutePath(), "metadata.xlsx");
+        Path excelFile = Paths.get(metadataDirectory.getAbsolutePath(), "SampleProject", "metadata.xlsx");
         assertTrue(Files.exists(excelFile));
 
-        Path imageFolder = Paths.get(metadataDirectory.getAbsolutePath(), "990012587030205171");
+        Path imageFolder = Paths.get(metadataDirectory.getAbsolutePath(), "SampleProject", "RM0166F05-0000001");
         assertTrue(Files.exists(imageFolder));
 
         List<String> fileNames = new ArrayList<>();

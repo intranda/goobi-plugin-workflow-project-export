@@ -1,5 +1,12 @@
 <config_plugin>
-
+    <config>
+        <!-- Do not change or remove, it is used in junit tests -->
+        <project>SampleProject</project>
+        <finishedStepName>closed step</finishedStepName>
+        <closeStepName>test step to close</closeStepName>
+        <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
+        <allowZipDownload>false</allowZipDownload>        
+    </config>
     <config>
         <!-- name of the project, can be repeated. Use * for any project -->
         <project>*</project>

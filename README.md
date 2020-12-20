@@ -14,7 +14,7 @@ Detail | Description
 --- | ---
 **Plugin identifier**       | intranda_workflow_projectexport
 **Plugin type**             | Workflow plugin
-**Licence**                 | GPL 2.0 or newer  
+**Licence**                 | GPL 2.0 or newer
 **Documentation (German)**  | https://docs.goobi.io/goobi-workflow-plugins-de/workflow/intranda_workflow_projectexport
 **Documentation (English)** | https://docs.goobi.io/goobi-workflow-plugins-en/workflow/intranda_workflow_projectexport
 

@@ -21,7 +21,7 @@
         <imageFolder>media</imageFolder>
         <!-- write the export into this directory -->
         <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
-        <!--  define if the export result shall be provided as zip file download -->
+        <!--  define if the export result shall be provided as zip file for download -->
         <allowZipDownload>true</allowZipDownload>
     </config>
 

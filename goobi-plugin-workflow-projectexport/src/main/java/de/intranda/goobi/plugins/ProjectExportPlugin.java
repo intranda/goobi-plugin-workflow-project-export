@@ -300,13 +300,14 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         headerRow.createCell(20).setCellValue("Etichetta 1");
         headerRow.createCell(21).setCellValue("Link 2 website of keeping institution");
         headerRow.createCell(22).setCellValue("Etichetta 2 keeping institution");
-        headerRow.createCell(23).setCellValue("Provenance");
-        headerRow.createCell(24).setCellValue("Marginalia");
-        headerRow.createCell(25).setCellValue("Censorship");
-        headerRow.createCell(26).setCellValue("Additional authors in Latin");
-        headerRow.createCell(27).setCellValue("Additional authors in Hebrew");
-        headerRow.createCell(28).setCellValue("Additional authors references");
-        headerRow.createCell(29).setCellValue("Number of copies");
+        headerRow.createCell(23).setCellValue("Fondo");
+        headerRow.createCell(24).setCellValue("Provenance");
+        headerRow.createCell(25).setCellValue("Marginalia");
+        headerRow.createCell(26).setCellValue("Censorship");
+        headerRow.createCell(27).setCellValue("Additional authors in Latin");
+        headerRow.createCell(28).setCellValue("Additional authors in Hebrew");
+        headerRow.createCell(29).setCellValue("Additional authors references");
+        headerRow.createCell(30).setCellValue("Number of copies");
 
         int rowCounter = 1;
         boolean error = false;
@@ -632,43 +633,46 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Clarification: This is the name of the holding institution. This is to be inserted by Goobi automatically from the Project record (there will be 1 project per institution)
                         // Example:
                         imageRow.createCell(22).setCellValue(process.getProjekt().getMetsRightsOwner());
+
+                        // Field: Fondo
+                        imageRow.createCell(23).setCellValue(process.getProjekt().getMetsRightsSponsor());
                         // Field: provenance
                         // Comments: Y/N, will be chosen by the cataloger or provided by the institution in there excel
                         // Clarification: Imported into Goobi as part of the excel upload of the inventory spreadsheet. This is the provenence information provided by the source library "Y" or "N" it will always be present.
                         // Example: y
-                        imageRow.createCell(23).setCellValue(provenance);
+                        imageRow.createCell(24).setCellValue(provenance);
                         // Field: Marginalia
                         // Comments: Y/N, will be chosen by the cataloger or provided by the institution in there excel
                         // Clarification: Imported into Goobi as part of the excel upload of the inventory spreadsheet. This is the marginalia information provided by the source library "Y" or "N" it will always be present.
                         // Example: y
-                        imageRow.createCell(24).setCellValue(marginalia);
+                        imageRow.createCell(25).setCellValue(marginalia);
                         // Field: censorship
                         // Comments: Y/N, will be chosen by the cataloger or provided by the institution in there excel
                         // Clarification: Imported into Goobi as part of the excel upload of the inventory spreadsheet. This is the Censorshop information provided by the source library "Y" or "N" it will always be present.
                         // Example: N
-                        imageRow.createCell(25).setCellValue(censorship);
+                        imageRow.createCell(26).setCellValue(censorship);
                         // Field: additional authors in Latin
                         // Comments: will be taken from VIAF based on the 700 field in the NLI record, can be multiple should be seperated with ";"
                         // Clarification: Taken automatically by Goobi from the 700 field in the NLI Alma bibliographic record with the prefix $$LAT (to denote Latin names) All additional author names to be copied into this field separated by a semicolon+space "; "
                         // Example:
 
-                        imageRow.createCell(26).setCellValue(additionalAuthorLat.toString());
+                        imageRow.createCell(27).setCellValue(additionalAuthorLat.toString());
                         // Field: Additional authors in Hebrew
                         // Comments: will be taken from the 700 field in the NLI record, can be multiple should be seperated with ";"
                         // Clarification: Taken automatically by Goobi from the 700 field in the NLI Alma bibliographic record with the prefix $$HEB (to denote Hebrew names) All additional author names to be copied into this field separated by a semicolon+space "; "
                         // Example:
 
-                        imageRow.createCell(27).setCellValue(additionalAuthorHeb.toString());
+                        imageRow.createCell(28).setCellValue(additionalAuthorHeb.toString());
                         // Field: Additional authors references
                         // Comments: will be taken from VIAF based on the 700 field in the NLI record, can be multiple should be seperated with ";"
                         // Clarification: To be taken from VIAF, Exact Query using the Israel data set on VIAF only the search term is the content of field 700 to be extracted from the NLI ALMA bibliographic record. All other name forms to be copied into this field separated by a semicolon+space "; "
                         // Example:
-                        imageRow.createCell(28).setCellValue(additionalAuthorOther.toString());
+                        imageRow.createCell(29).setCellValue(additionalAuthorOther.toString());
                         // Field: Number of copies
                         // Comments: calculated by GOOBI, or provided by the institutino in there excel
                         // Clarification: This is to be taken from the excel upload of the inventory spreadsheet
                         // Example: 1
-                        imageRow.createCell(29).setCellValue(StringUtils.isBlank(copies) ? "" : copies);
+                        imageRow.createCell(30).setCellValue(StringUtils.isBlank(copies) ? "" : copies);
 
                         rowCounter = rowCounter + 1;
                     }

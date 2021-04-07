@@ -138,8 +138,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             if (projectSize == 0) {
                 stepsComplete = false;
                 exportPossible = false;
-                String[] parameter = { projectName };
-                projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_emptyProject", parameter);
+                projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_emptyProject", projectName);
                 Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
             } else {
                 int numberOfTasks = getNumberOfUnfinishedTasks();
@@ -147,14 +146,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 if (numberOfTasks == 0) {
                     stepsComplete = true;
                     projectValidationError = null;
-                    String[] parameter = { String.valueOf(projectSize) };
-                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", parameter);
+                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", String.valueOf(projectSize));
                 } else {
+                    // TODO change warning text
                     stepsComplete = false;
-                    String[] param = { String.valueOf(projectSize) };
-                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", param);
-                    String[] parameter = { projectName, String.valueOf(numberOfTasks) };
-                    projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_openSteps", parameter);
+                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", String.valueOf(projectSize));
+                    projectValidationError =
+                            Helper.getTranslation("plugin_workflow_projectexport_openSteps", projectName, String.valueOf(numberOfTasks));
                     Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
                 }
             }
@@ -202,7 +200,16 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
      */
     private List<Process> getProcessList() {
         if (!testDatabase) {
-            return ProcessManager.getProcesses("prozesse.titel", "prozesse.istTemplate = false and projekte.titel = '" + projectName + "' ");
+            StringBuilder query = new StringBuilder();
+            query.append("prozesse.istTemplate = false and projekte.titel = '");
+            query.append(projectName);
+            query.append("' ");
+            query.append("AND prozesseID IN ( ");
+            query.append("SELECT prozesseId FROM schritte WHERE titel = '");
+            query.append(finishStepName);
+            query.append("' ");
+            query.append(" AND (Bearbeitungsstatus = 3)) ");
+            return ProcessManager.getProcesses("prozesse.titel", query.toString());
         } else {
             return testList;
         }
@@ -318,6 +325,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 if (finishStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() == StepStatus.DEACTIVATED) {
                     continue processloop;
                 }
+                // TODO only closeStepName = open/inwork/done?
             }
 
             // open mets file
@@ -468,9 +476,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                     List<String> normalizedVariant =
                                                             recordToImport.getSubFieldValues("100", null, null, "a", "b", "c");
                                                     List<String> otherVariants = recordToImport.getSubFieldValues("400", null, null, "a", "b", "c");
-
-                                                    publisherLat = normalizedVariant.get(0);
-
+                                                    if (normalizedVariant != null) {
+                                                        publisherLat = normalizedVariant.get(0);
+                                                    }
                                                     if (otherVariants != null) {
                                                         StringBuilder sb = new StringBuilder();
                                                         for (String spelling : otherVariants) {
@@ -703,7 +711,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         Helper.setMeldung("plugin_workflow_projectexport_exportFinished");
         // close step if no error occurred
-        if (!error && stepsComplete) {
+        if (!error) {
             for (Process process : processesInProject) {
                 for (Step step : process.getSchritte()) {
                     if (closeStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() != StepStatus.DEACTIVATED

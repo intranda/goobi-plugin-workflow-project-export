@@ -360,7 +360,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     String copies = "";
                     String title = "";
                     String identifier = "";
-                    String shelfmark = "";
+                    String shelfmark = process.getTitel();
                     String authorLat = "";
                     String authorHeb = "";
                     String authorOther = "";
@@ -404,7 +404,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             notes_01 = md.getValue();
                         } else if (md.getType().getName().equals("Notes02")) {
                             notes_02 = md.getValue();
-                        } else if (md.getType().getName().equals("shelfmarksource")) {
+                        } else if (md.getType().getName().equals("shelfmarksource") && StringUtils.isNotBlank(md.getValue())) {
                             shelfmark = md.getValue();
                         } else if (md.getType().getName().equals("AuthorPreferred")) {
                             authorLat = md.getValue();

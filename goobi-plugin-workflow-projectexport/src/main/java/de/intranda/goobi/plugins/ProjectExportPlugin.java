@@ -746,7 +746,37 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 log.error(e);
             } finally {
             }
+        } else {
+            Path zipFileName = Paths.get(exportFolder, projectName + ".zip");
+            OutputStream fos = null;
+            ZipOutputStream out = null;
+            try {
+                if (StorageProvider.getInstance().isFileExists(zipFileName)) {
+                    StorageProvider.getInstance().deleteFile(zipFileName);
+                }
+                fos = Files.newOutputStream(zipFileName);
+                out = new ZipOutputStream(fos);
+                Path project = Paths.get(exportFolder, projectName);
+                zipFolder("", project, out);
+                out.flush();
+
+            } catch (IOException e) {
+                log.error(e);
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                    if (fos != null) {
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                    log.error(e);
+                }
+
+            }
         }
+        // TODO cleanup after zip generatation?
     }
 
     /**

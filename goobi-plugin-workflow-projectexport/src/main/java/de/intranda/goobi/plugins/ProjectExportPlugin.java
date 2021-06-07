@@ -2,9 +2,7 @@ package de.intranda.goobi.plugins;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.faces.context.ExternalContext;
@@ -684,13 +681,15 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
                         rowCounter = rowCounter + 1;
                     }
-                    // export images
-                    Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));
-                    Path target = Paths.get(exportFolder, projectName, process.getTitel());
-                    if (!Files.exists(target)) {
-                        Files.createDirectories(target);
+                    if (allowZipDownload) {
+                        // export images
+                        Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));
+                        Path target = Paths.get(exportFolder, projectName, process.getTitel());
+                        if (!Files.exists(target)) {
+                            Files.createDirectories(target);
+                        }
+                        StorageProvider.getInstance().copyDirectory(source, target);
                     }
-                    StorageProvider.getInstance().copyDirectory(source, target);
                 }
             } catch (ReadException | PreferencesException | WriteException | IOException | InterruptedException | SwapException | DAOException e) {
                 log.error(e);
@@ -737,7 +736,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 ZipOutputStream out = new ZipOutputStream(responseOutputStream);
 
                 Path project = Paths.get(exportFolder, projectName);
-                zipFolder("", project, out);
+                ExportThread.zipFolder("", project, out);
                 out.flush();
                 out.close();
 
@@ -747,63 +746,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             } finally {
             }
         } else {
-            Path zipFileName = Paths.get(exportFolder, projectName + ".zip");
-            OutputStream fos = null;
-            ZipOutputStream out = null;
-            try {
-                if (StorageProvider.getInstance().isFileExists(zipFileName)) {
-                    StorageProvider.getInstance().deleteFile(zipFileName);
-                }
-                fos = Files.newOutputStream(zipFileName);
-                out = new ZipOutputStream(fos);
-                Path project = Paths.get(exportFolder, projectName);
-                zipFolder("", project, out);
-                out.flush();
-
-            } catch (IOException e) {
-                log.error(e);
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                    if (fos != null) {
-                        fos.close();
-                    }
-                } catch (IOException e) {
-                    log.error(e);
-                }
-
-            }
-        }
-        // TODO cleanup after zip generatation?
-    }
-
-    /**
-     * zip a given folder and go into subfolders recursively
-     * 
-     * @param zipBasePath the basepath inside of the zip file
-     * @param path the folder to be run through
-     * @param out the zip output stream
-     * @throws IOException
-     */
-    private void zipFolder(String zipBasePath, Path path, ZipOutputStream out) throws IOException {
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-            for (Path entry : stream) {
-                if (Files.isDirectory(entry)) {
-                    String p = zipBasePath + entry.getFileName() + "/";
-                    zipFolder(p, entry, out);
-                } else {
-                    InputStream in = StorageProvider.getInstance().newInputStream(entry);
-                    out.putNextEntry(new ZipEntry(zipBasePath + entry.getFileName().toString()));
-                    byte[] b = new byte[1024];
-                    int count;
-                    while ((count = in.read(b)) > 0) {
-                        out.write(b, 0, count);
-                    }
-                    in.close();
-                }
-            }
+            Helper.setMeldung("Export started, this might run a while. Check the export folder for results.");
+            ExportThread thread = new ExportThread();
+            thread.setExportFolder(exportFolder);
+            thread.setProjectName(projectName);
+            thread.setProcessesInProject(processesInProject);
+            thread.setFinishStepName(finishStepName);
+            thread.start();
         }
     }
 

@@ -697,8 +697,16 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             }
         }
         // save/download excel
+        Path destination = Paths.get(exportFolder, projectName);
+        if (!StorageProvider.getInstance().isFileExists(destination)) {
+            try {
+                StorageProvider.getInstance().createDirectories(destination);
+            } catch (IOException e) {
+                log.error(e);
+            }
+        }
         try {
-            OutputStream out = Files.newOutputStream(Paths.get(exportFolder, projectName, "metadata.xlsx"));
+            OutputStream out = Files.newOutputStream(Paths.get(destination.toString(), "metadata.xlsx"));
             wb.write(out);
             out.flush();
             out.close();
@@ -708,7 +716,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             error = true;
         }
 
-        Helper.setMeldung("plugin_workflow_projectexport_exportFinished");
+
         // close step if no error occurred
         if (!error) {
             for (Process process : processesInProject) {
@@ -725,6 +733,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         // now zip the entire exported project and allow a download
         if (allowZipDownload) {
+            Helper.setMeldung("plugin_workflow_projectexport_exportFinished");
             try {
                 FacesContext facesContext = FacesContextHelper.getCurrentFacesContext();
                 ExternalContext ec = facesContext.getExternalContext();
@@ -749,6 +758,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             Helper.setMeldung("Export started, this might run a while. Check the export folder for results.");
             ExportThread thread = new ExportThread();
             thread.setExportFolder(exportFolder);
+            thread.setImageFolder(imageFolder);
             thread.setProjectName(projectName);
             thread.setProcessesInProject(processesInProject);
             thread.setFinishStepName(finishStepName);

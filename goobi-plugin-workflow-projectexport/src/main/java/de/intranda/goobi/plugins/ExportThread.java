@@ -45,9 +45,10 @@ public class ExportThread extends Thread {
                     continue processloop;
                 }
             }
+            log.debug("Export files for process {}", process.getTitel());
             try {
                 List<String> filenames = StorageProvider.getInstance().list(process.getImagesTifDirectory(false));
-
+                log.debug("Copy {} files." , filenames.size());
                 if (!filenames.isEmpty()) {
 
                     Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));

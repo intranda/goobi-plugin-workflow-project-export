@@ -324,7 +324,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 }
                 // TODO only closeStepName = open/inwork/done?
             }
-
+            log.info("Collect metadata for process {}", process.getTitel());
             // open mets file
             try {
                 Fileformat fileformat = process.readMetadataFile();
@@ -444,7 +444,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
                                     if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(value) && url.contains("viaf")) {
                                         url = url + value + "/marc21.xml";
-
                                         MarcRecord recordToImport = NormDataImporter.getSingleMarcRecord(url);
                                         if (recordToImport != null) {
                                             List<String> databases = new ArrayList<>();
@@ -463,7 +462,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                     }
                                                 }
                                             }
-                                            if (currentUrl == null) {
+                                            if (currentUrl == null && !recordToImport.getAuthorityDatabaseUrls().isEmpty()) {
                                                 currentUrl = recordToImport.getAuthorityDatabaseUrls().get(0);
                                             }
 
@@ -716,7 +715,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             error = true;
         }
 
-
+        // TODO close steps in separate thread
         // close step if no error occurred
         if (!error) {
             for (Process process : processesInProject) {

@@ -312,6 +312,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         headerRow.createCell(28).setCellValue("Additional authors in Hebrew");
         headerRow.createCell(29).setCellValue("Additional authors references");
         headerRow.createCell(30).setCellValue("Number of copies");
+        headerRow.createCell(31).setCellValue("Segnatura");
 
         int rowCounter = 1;
         boolean error = false;
@@ -546,7 +547,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: Should be the number in the original library. will be loaded based on the excel provided by the institution after inserting the barcodes
                         // Clarification: Imported into Goobi as part of the excel upload of the inventory spreadsheet. This is the shelf mark information provided by the source library (if they use shelf marks) it will not always be present.
                         // Example: CB_FI_015
-                        imageRow.createCell(4).setCellValue(shelfmark);
+                        imageRow.createCell(4).setCellValue(process.getId());
                         // Field: author lat
                         // Comments: will be taken from VIAF based on the 100 field in the NLI record
                         // Clarification: To be taken from VIAF, Exact Query using the Israel data set on VIAF only the search term is the content of field G below which has been extracted from the NLI ALMA bibliographic record. The version to be used is Either: Italian, Vatican or LOC if Italian or vatican name forms are not present
@@ -677,6 +678,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Clarification: This is to be taken from the excel upload of the inventory spreadsheet
                         // Example: 1
                         imageRow.createCell(30).setCellValue(StringUtils.isBlank(copies) ? "" : copies);
+
+
+                        imageRow.createCell(31).setCellValue(shelfmark);
 
                         rowCounter = rowCounter + 1;
                     }

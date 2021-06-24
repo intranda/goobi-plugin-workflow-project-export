@@ -547,7 +547,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Comments: Should be the number in the original library. will be loaded based on the excel provided by the institution after inserting the barcodes
                         // Clarification: Imported into Goobi as part of the excel upload of the inventory spreadsheet. This is the shelf mark information provided by the source library (if they use shelf marks) it will not always be present.
                         // Example: CB_FI_015
-                        imageRow.createCell(4).setCellValue(process.getId());
+                        imageRow.createCell(4).setCellValue(process.getTitel());
                         // Field: author lat
                         // Comments: will be taken from VIAF based on the 100 field in the NLI record
                         // Clarification: To be taken from VIAF, Exact Query using the Israel data set on VIAF only the search term is the content of field G below which has been extracted from the NLI ALMA bibliographic record. The version to be used is Either: Italian, Vatican or LOC if Italian or vatican name forms are not present

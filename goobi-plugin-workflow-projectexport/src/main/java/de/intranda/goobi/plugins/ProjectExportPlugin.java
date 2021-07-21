@@ -109,6 +109,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     @Setter
     private List<Process> testList;
 
+    @Getter
+    private boolean includeAllFinishedProcesses = false;
+
     /**
      * Getter to list all existing active projects
      * 
@@ -129,29 +132,45 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     public void setProjectName(String selectedProjectName) {
         if (StringUtils.isBlank(this.projectName) || !this.projectName.equals(selectedProjectName)) {
             this.projectName = selectedProjectName;
-            readConfiguration(projectName);
-            projectSizeMessage = null;
-            int projectSize = getProcessList().size();
-            if (projectSize == 0) {
-                stepsComplete = false;
-                exportPossible = false;
-                projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_emptyProject", projectName);
-                Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
+            calculateProjectSize();
+        }
+    }
+
+    /**
+     * Select, if all processes of a project are to be included or only the unfinished ones
+     * 
+     * @param includeAllFinishedProcesses
+     */
+
+    public void setIncludeAllFinishedProcesses(boolean includeAllFinishedProcesses) {
+        if (this.includeAllFinishedProcesses != includeAllFinishedProcesses) {
+            this.includeAllFinishedProcesses = includeAllFinishedProcesses;
+            calculateProjectSize();
+        }
+    }
+
+    private void calculateProjectSize() {
+        readConfiguration(projectName);
+        projectSizeMessage = null;
+        int projectSize = getProcessList().size();
+        if (projectSize == 0) {
+            stepsComplete = false;
+            exportPossible = false;
+            projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_emptyProject", projectName);
+            Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
+        } else {
+            int numberOfTasks = getNumberOfUnfinishedTasks();
+            exportPossible = true;
+            if (numberOfTasks == 0) {
+                stepsComplete = true;
+                projectValidationError = null;
+                projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", String.valueOf(projectSize));
             } else {
-                int numberOfTasks = getNumberOfUnfinishedTasks();
-                exportPossible = true;
-                if (numberOfTasks == 0) {
-                    stepsComplete = true;
-                    projectValidationError = null;
-                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", String.valueOf(projectSize));
-                } else {
-                    // TODO change warning text
-                    stepsComplete = false;
-                    projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", String.valueOf(projectSize));
-                    projectValidationError =
-                            Helper.getTranslation("plugin_workflow_projectexport_openSteps", projectName, String.valueOf(numberOfTasks));
-                    Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
-                }
+                // change warning text ?
+                stepsComplete = false;
+                projectSizeMessage = Helper.getTranslation("plugin_workflow_projectexport_projectSize", String.valueOf(projectSize));
+                projectValidationError = Helper.getTranslation("plugin_workflow_projectexport_openSteps", projectName, String.valueOf(numberOfTasks));
+                Helper.setFehlerMeldung("project", projectValidationError, projectValidationError);
             }
         }
     }
@@ -206,6 +225,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             query.append(finishStepName);
             query.append("' ");
             query.append(" AND (Bearbeitungsstatus = 3)) ");
+            if (!includeAllFinishedProcesses) {
+                query.append("AND prozesseID NOT IN ( ");
+                query.append("SELECT prozesseId FROM schritte WHERE titel = '");
+                query.append(closeStepName);
+                query.append("' AND (Bearbeitungsstatus = 3 OR Bearbeitungsstatus = 5)) ");
+            }
+
             return ProcessManager.getProcesses("prozesse.titel", query.toString());
         } else {
             return testList;
@@ -323,7 +349,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 if (finishStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() == StepStatus.DEACTIVATED) {
                     continue processloop;
                 }
-                // TODO only closeStepName = open/inwork/done?
+
             }
             log.info("Collect metadata for process {}", process.getTitel());
             // open mets file
@@ -368,7 +394,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     String cityOther = "";
 
                     String publisherLat = "";
-                    String publisherHeb = "";
+                    //                    String publisherHeb = "";
                     String publisherOther = "";
                     String nliLink = "";
 
@@ -494,8 +520,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                     }
                                 }
                             }
-                        } else if (md.getType().getName().equals("PublisherHeb")) {
-                            publisherHeb = md.getValue();
+                            //                        } else if (md.getType().getName().equals("PublisherHeb")) {
+                            //                            publisherHeb = md.getValue();
                         } else if (md.getType().getName().equals("NLICatalog")) {
                             nliLink = md.getValue();
                         } else if (md.getType().getName().equals("AdditionalAuthor")) {
@@ -678,7 +704,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         // Clarification: This is to be taken from the excel upload of the inventory spreadsheet
                         // Example: 1
                         imageRow.createCell(30).setCellValue(StringUtils.isBlank(copies) ? "" : copies);
-
 
                         imageRow.createCell(31).setCellValue(shelfmark);
 

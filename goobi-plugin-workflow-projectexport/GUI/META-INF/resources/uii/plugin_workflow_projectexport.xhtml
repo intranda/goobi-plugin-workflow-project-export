@@ -45,6 +45,16 @@
                                         itemValue="#{var}"
                                         itemLabel="#{var}" 
                                         hidePleaseSelectMessage="false"/>
+                                        
+                                    <intranda:formInputCheckBoxAjax
+                                        id="checkIncludeProcesses"
+                                        label="#{msgs.plugin_workflow_projectexport_includeFinishedProcesses}"
+                                        field="#{NavigationForm.workflowPlugin.includeAllFinishedProcesses}"
+                                        help="#{msgs.help_institution_allowAllRulesets}"
+                                        name="checkIncludeProcesses"
+                                        ajaxEvent="change"
+                                        ajaxRender="projectExportForm"
+                                       />
                                 </div>
 
                                 <h:panelGroup rendered="#{NavigationForm.workflowPlugin.exportPossible and NavigationForm.workflowPlugin.projectSizeMessage != null}">

@@ -744,19 +744,22 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             error = true;
         }
 
-        // TODO close steps in separate thread
         // close step if no error occurred
         if (!error) {
-            for (Process process : processesInProject) {
-                for (Step step : process.getSchritte()) {
-                    if (closeStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() != StepStatus.DEACTIVATED
-                            && step.getBearbeitungsstatusEnum() != StepStatus.DONE) {
-                        CloseStepHelper.closeStep(step, null);
-                        // close step via ticket or goobiscript?
-                        break;
+            // close steps in separate thread
+            Runnable run = () -> {
+                for (Process process : processesInProject) {
+                    for (Step step : process.getSchritte()) {
+                        if (closeStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() != StepStatus.DEACTIVATED
+                                && step.getBearbeitungsstatusEnum() != StepStatus.DONE) {
+                            CloseStepHelper.closeStep(step, null);
+                            // close step via ticket or goobiscript?
+                            break;
+                        }
                     }
                 }
-            }
+            };
+            new Thread(run).start();
         }
 
         // now zip the entire exported project and allow a download

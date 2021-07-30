@@ -808,6 +808,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             thread.setProjectName(projectName);
             thread.setProcessesInProject(processesInProject);
             thread.setFinishStepName(finishStepName);
+            thread.setWaitforThread(createExcelAndCloseThread);
             thread.start();
         }
     }

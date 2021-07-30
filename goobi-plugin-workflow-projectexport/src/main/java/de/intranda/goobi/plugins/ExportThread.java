@@ -14,6 +14,7 @@ import java.util.zip.ZipOutputStream;
 import org.goobi.beans.Process;
 import org.goobi.beans.Step;
 
+import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.enums.StepStatus;
 import de.sub.goobi.helper.exceptions.DAOException;
@@ -34,9 +35,20 @@ public class ExportThread extends Thread {
     private String imageFolder;
     @Setter
     private String finishStepName;
+    @Setter
+    private Thread waitforThread;
 
     @Override
     public void run() {
+        if (waitforThread != null) {
+            try {
+                waitforThread.join();
+            } catch (InterruptedException e) {
+                log.error(e);
+                Helper.setFehlerMeldung("Error exporting project. See application log for details");
+                return;
+            }
+        }
         // copy data
         log.info("Copy content of project {} to export destination. ", projectName);
         processloop: for (Process process : processesInProject) {
@@ -48,7 +60,7 @@ public class ExportThread extends Thread {
             log.debug("Export files for process {}", process.getTitel());
             try {
                 List<String> filenames = StorageProvider.getInstance().list(process.getImagesTifDirectory(false));
-                log.debug("Copy {} files." , filenames.size());
+                log.debug("Copy {} files.", filenames.size());
                 if (!filenames.isEmpty()) {
 
                     Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));

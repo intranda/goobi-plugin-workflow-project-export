@@ -346,8 +346,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
             int rowCounter = 1;
             boolean error = false;
-            processloop: for (Process process : processesInProject) {
-
+            processloop: for (Process p : processesInProject) {
+                //do this so the metadata is not kept in memory for every process in the list
+                Process process = ProcessManager.getProcessById(p.getId());
                 // just use this process if the step to check is in valid status
                 for (Step step : process.getSchritte()) {
                     if (finishStepName.equals(step.getTitel()) && step.getBearbeitungsstatusEnum() == StepStatus.DEACTIVATED) {

@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.goobi.beans.Process;
 import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
@@ -306,7 +306,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         // create excel file
         Runnable run = () -> {
-            Workbook wb = new XSSFWorkbook();
+            Workbook wb = new SXSSFWorkbook();
             Sheet sheet = wb.createSheet("images");
 
             // create header
@@ -741,7 +741,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 }
             }
             try {
-                OutputStream out = Files.newOutputStream(Paths.get(destination.toString(), "metadata.xlsx"));
+                Path metadataXlsPath = Paths.get(destination.toString(), "metadata.xlsx");
+                log.info("Writing metadata file to {}", metadataXlsPath);
+                OutputStream out = Files.newOutputStream(metadataXlsPath);
                 wb.write(out);
                 out.flush();
                 out.close();

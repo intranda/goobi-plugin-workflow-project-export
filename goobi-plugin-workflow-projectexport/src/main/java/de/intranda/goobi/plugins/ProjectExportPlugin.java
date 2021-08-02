@@ -306,7 +306,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
         // create excel file
         Runnable run = () -> {
-            Workbook wb = new SXSSFWorkbook();
+            Workbook wb = new SXSSFWorkbook(20);
             Sheet sheet = wb.createSheet("images");
 
             // create header

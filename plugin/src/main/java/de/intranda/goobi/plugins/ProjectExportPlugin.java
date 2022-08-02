@@ -59,7 +59,6 @@ import ugh.dl.Fileformat;
 import ugh.dl.Metadata;
 import ugh.exceptions.PreferencesException;
 import ugh.exceptions.ReadException;
-import ugh.exceptions.WriteException;
 
 @PluginImplementation
 @Log4j2
@@ -731,8 +730,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             StorageProvider.getInstance().copyDirectory(source, target);
                         }
                     }
-                } catch (ReadException | PreferencesException | WriteException | IOException | InterruptedException | SwapException
-                        | DAOException e) {
+                } catch (ReadException | PreferencesException | IOException | SwapException | DAOException e) {
                     log.error(e);
                     error = true;
                 }

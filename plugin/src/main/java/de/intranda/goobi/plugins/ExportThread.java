@@ -71,7 +71,7 @@ public class ExportThread extends Thread {
                     StorageProvider.getInstance().copyDirectory(source, target);
 
                 }
-            } catch (IOException | InterruptedException | SwapException | DAOException e) {
+            } catch (IOException | SwapException | DAOException e) {
                 log.error(e);
             }
         }

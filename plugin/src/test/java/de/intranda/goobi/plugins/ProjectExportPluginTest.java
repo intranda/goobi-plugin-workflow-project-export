@@ -48,7 +48,7 @@ import ugh.fileformats.mets.MetsMods;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MetadatenHelper.class, VariableReplacer.class, ConfigPlugins.class, StepManager.class, ConfigurationHelper.class,
-    ProcessManager.class, CloseStepHelper.class })
+        ProcessManager.class, CloseStepHelper.class })
 @PowerMockIgnore({ "javax.management.*" })
 public class ProjectExportPluginTest {
 
@@ -96,7 +96,7 @@ public class ProjectExportPluginTest {
         EasyMock.expect(configurationHelper.isCreateMasterDirectory()).andReturn(false).anyTimes();
         EasyMock.expect(configurationHelper.isCreateSourceFolder()).andReturn(false).anyTimes();
         EasyMock.expect(configurationHelper.getProcessImagesMainDirectoryName()).andReturn("RM0166F05-0000001_media").anyTimes();
-        EasyMock.expect(configurationHelper.getFolderForInternalProcesslogFiles()).andReturn("intern").anyTimes();
+        EasyMock.expect(configurationHelper.getFolderForInternalJournalFiles()).andReturn("intern").anyTimes();
         EasyMock.expect(configurationHelper.getMetadataFolder()).andReturn(metadataDirectoryName).anyTimes();
 
         EasyMock.expect(configurationHelper.getScriptCreateDirMeta()).andReturn("").anyTimes();
@@ -111,9 +111,9 @@ public class ProjectExportPluginTest {
             @Override
             public Boolean answer() throws Throwable {
                 for (Step step : process.getSchritte()) {
-                    if (step.getTitel().equals("test step to close")) {
+                    if ("test step to close".equals(step.getTitel())) {
                         step.setBearbeitungsstatusEnum(StepStatus.DONE);
-                    } else if (step.getTitel().equals("locked step that should open")) {
+                    } else if ("locked step that should open".equals(step.getTitel())) {
                         step.setBearbeitungsstatusEnum(StepStatus.OPEN);
                     }
                 }
@@ -201,9 +201,9 @@ public class ProjectExportPluginTest {
         assertEquals("RM0166F05-0000001_016.jpg", fileNames.get(15));
 
         for (Step step : process.getSchritte()) {
-            if (step.getTitel().equals("test step to close")) {
+            if ("test step to close".equals(step.getTitel())) {
                 assertEquals(StepStatus.DONE, step.getBearbeitungsstatusEnum());
-            } else if (step.getTitel().equals("locked step that should open")) {
+            } else if ("locked step that should open".equals(step.getTitel())) {
                 assertEquals(StepStatus.OPEN, step.getBearbeitungsstatusEnum());
             }
         }
@@ -227,15 +227,14 @@ public class ProjectExportPluginTest {
         } catch (IOException e) {
         }
         List<Processproperty> properties = createProperties();
-        if (id==2) {
+        if (id == 2) {
             properties.add(createProperty("NLI_Number", "990010890590205171"));
-        } else if (id==3) {
+        } else if (id == 3) {
             properties.add(createProperty("NLI_Number", "990012426600205171"));
-        } else if (id==4) {
+        } else if (id == 4) {
             properties.add(createProperty("NLI_Number", "990018871250205171"));
 
         }
-
 
         p.setEigenschaften(properties);
         return p;
@@ -274,7 +273,6 @@ public class ProjectExportPluginTest {
 
         properties.add(createProperty("Reason for missing NLI identifier", ""));
         properties.add(createProperty("OCLC identifier", "319712882"));
-
 
         return properties;
     }

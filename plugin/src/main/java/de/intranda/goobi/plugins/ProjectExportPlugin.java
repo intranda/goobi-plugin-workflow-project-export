@@ -232,7 +232,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 query.append("' AND (Bearbeitungsstatus = 3 OR Bearbeitungsstatus = 5)) ");
             }
 
-            return ProcessManager.getProcesses("prozesse.titel", query.toString());
+            return ProcessManager.getProcesses("prozesse.titel", query.toString(), null);
         } else {
             return testList;
         }
@@ -367,7 +367,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     String representative = "";
                     if (physical.getAllMetadata() != null) {
                         for (Metadata md : physical.getAllMetadata()) {
-                            if (md.getType().getName().equals("_representative")) {
+                            if ("_representative".equals(md.getType().getName())) {
                                 representative = md.getValue();
                             }
                         }
@@ -403,15 +403,15 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         String nliLink = "";
 
                         for (Processproperty prop : process.getEigenschaften()) {
-                            if (prop.getTitel().equals("Censorship")) {
+                            if ("Censorship".equals(prop.getTitel())) {
                                 censorship = prop.getWert();
-                            } else if (prop.getTitel().equals("Marginalia")) {
+                            } else if ("Marginalia".equals(prop.getTitel())) {
                                 marginalia = prop.getWert();
-                            } else if (prop.getTitel().equals("Provenance")) {
+                            } else if ("Provenance".equals(prop.getTitel())) {
                                 provenance = prop.getWert();
-                            } else if (prop.getTitel().equals("Number of Copies")) {
+                            } else if ("Number of Copies".equals(prop.getTitel())) {
                                 copies = prop.getWert();
-                            } else if (prop.getTitel().equals("NLI_Number")) {
+                            } else if ("NLI_Number".equals(prop.getTitel())) {
                                 identifier = prop.getWert();
                             }
 
@@ -422,35 +422,35 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         StringBuilder additionalAuthorOther = new StringBuilder();
 
                         for (Metadata md : logical.getAllMetadata()) {
-                            if (md.getType().getName().equals("TitleDocMain")) {
+                            if ("TitleDocMain".equals(md.getType().getName())) {
                                 title = md.getValue();
-                            } else if (md.getType().getName().equals("OtherTitle")) {
+                            } else if ("OtherTitle".equals(md.getType().getName())) {
                                 titleLat = md.getValue();
-                            } else if (md.getType().getName().equals("OclcID")) {
+                            } else if ("OclcID".equals(md.getType().getName())) {
                                 oclcIdentifier = md.getValue();
-                            } else if (md.getType().getName().equals("Notes01")) {
+                            } else if ("Notes01".equals(md.getType().getName())) {
                                 notes_01 = md.getValue();
-                            } else if (md.getType().getName().equals("Notes02")) {
+                            } else if ("Notes02".equals(md.getType().getName())) {
                                 notes_02 = md.getValue();
-                            } else if (md.getType().getName().equals("shelfmarksource") && StringUtils.isNotBlank(md.getValue())) {
+                            } else if ("shelfmarksource".equals(md.getType().getName()) && StringUtils.isNotBlank(md.getValue())) {
                                 shelfmark = md.getValue();
-                            } else if (md.getType().getName().equals("AuthorPreferred")) {
+                            } else if ("AuthorPreferred".equals(md.getType().getName())) {
                                 authorLat = md.getValue();
-                            } else if (md.getType().getName().equals("AuthorPreferredHeb")) {
+                            } else if ("AuthorPreferredHeb".equals(md.getType().getName())) {
                                 authorHeb = md.getValue();
-                            } else if (md.getType().getName().equals("AuthorPreferredOther")) {
+                            } else if ("AuthorPreferredOther".equals(md.getType().getName())) {
                                 authorOther = md.getValue();
-                            } else if (md.getType().getName().equals("PublicationRun")) {
+                            } else if ("PublicationRun".equals(md.getType().getName())) {
                                 year = md.getValue();
-                            } else if (md.getType().getName().equals("PublicationYear")) {
+                            } else if ("PublicationYear".equals(md.getType().getName())) {
                                 year = md.getValue();
-                            } else if (md.getType().getName().equals("PlaceOfPublicationNormalized")) {
+                            } else if ("PlaceOfPublicationNormalized".equals(md.getType().getName())) {
                                 cityNormed = md.getValue();
-                            } else if (md.getType().getName().equals("PlaceOfPublication")) {
+                            } else if ("PlaceOfPublication".equals(md.getType().getName())) {
                                 city = md.getValue();
-                            } else if (md.getType().getName().equals("PlaceOfPublicationOther")) {
+                            } else if ("PlaceOfPublicationOther".equals(md.getType().getName())) {
                                 cityOther = md.getValue();
-                            } else if (md.getType().getName().equals("Publisher")) {
+                            } else if ("Publisher".equals(md.getType().getName())) {
                                 publisherLat = md.getValue();
 
                                 // once we found the publisher name get other writing forms from Vocabulary
@@ -464,11 +464,11 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                         String url = null;
                                         String value = null;
                                         for (Field f : vr.getFields()) {
-                                            if (f.getDefinition().getLabel().equals("Name variants")) {
+                                            if ("Name variants".equals(f.getDefinition().getLabel())) {
                                                 publisherOther = f.getValue();
-                                            } else if (f.getDefinition().getLabel().equals("Authority URI")) {
+                                            } else if ("Authority URI".equals(f.getDefinition().getLabel())) {
                                                 url = f.getValue();
-                                            } else if (f.getDefinition().getLabel().equals("Value URI")) {
+                                            } else if ("Value URI".equals(f.getDefinition().getLabel())) {
                                                 value = f.getValue();
                                             }
                                         }
@@ -532,21 +532,21 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                 }
                                 //                        } else if (md.getType().getName().equals("PublisherHeb")) {
                                 //                            publisherHeb = md.getValue();
-                            } else if (md.getType().getName().equals("NLICatalog")) {
+                            } else if ("NLICatalog".equals(md.getType().getName())) {
                                 nliLink = md.getValue();
-                            } else if (md.getType().getName().equals("AdditionalAuthor")) {
+                            } else if ("AdditionalAuthor".equals(md.getType().getName())) {
                                 if (additionalAuthorLat.length() > 0) {
                                     additionalAuthorLat.append("; ");
                                 }
                                 additionalAuthorLat.append(md.getValue());
 
-                            } else if (md.getType().getName().equals("AdditionalAuthorHeb")) {
+                            } else if ("AdditionalAuthorHeb".equals(md.getType().getName())) {
                                 if (additionalAuthorHeb.length() > 0) {
                                     additionalAuthorHeb.append("; ");
                                 }
                                 additionalAuthorHeb.append(md.getValue());
 
-                            } else if (md.getType().getName().equals("AdditionalAuthorOther")) {
+                            } else if ("AdditionalAuthorOther".equals(md.getType().getName())) {
                                 if (additionalAuthorOther.length() > 0) {
                                     additionalAuthorOther.append("; ");
                                 }
@@ -574,7 +574,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             // Clarification: As selected in the workflow by the cataloguer
                             // Example: N
                             imageRow.createCell(2)
-                            .setCellValue(StringUtils.isNotBlank(representative) && representative.equals(physPageNo) ? "Y" : "N");
+                                    .setCellValue(StringUtils.isNotBlank(representative) && representative.equals(physPageNo) ? "Y" : "N");
                             // Field: order
                             // Comments:
                             // Clarification: Generated by Goobi from the process title

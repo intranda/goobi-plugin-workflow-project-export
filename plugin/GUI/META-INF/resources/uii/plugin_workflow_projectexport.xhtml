@@ -5,7 +5,7 @@
     xmlns:h="http://xmlns.jcp.org/jsf/html"
     xmlns:f="http://xmlns.jcp.org/jsf/core"
     xmlns:x="http://myfaces.apache.org/tomahawk"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:p="http://primefaces.org/ui">
 
@@ -15,80 +15,71 @@
     <composite:implementation>
 
         <h:outputText
-            styleClass="alert alert-danger block margin-top-most"
+            styleClass="alert alert-danger d-block"
             value="#{msgs.noAccessAllowed} Plugin_Goobi_ProjectExport"
             rendered="#{!LoginForm.hasRole('Plugin_Goobi_ProjectExport')}" />
 
-        <h:panelGroup rendered="#{LoginForm.hasRole('Plugin_Goobi_ProjectExport')}">
-                            <h:form id="projectExportForm">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="box box-color box-bordered lightgrey">
-                        <div class="box-title">
-                            <h3>
-                                <i class="fa fa-plug"></i>
-                                <h:outputText value="#{msgs[NavigationForm.workflowPlugin.title]}" />
-                            </h3>
-                        </div>
-                        <div class="box-content">
-                                <div class="row">
-                                    <intranda:formInputDropDownAjax
-                                        ajaxEvent="change"
-                                        ajaxRender="projectExportForm"
-                                        label="#{msgs.projekt}"
-                                        field="#{NavigationForm.workflowPlugin.projectName}"
-                                        help=""
-                                        name="project"
-                                        selectItems="#{NavigationForm.workflowPlugin.allProjectNames}"
-                                        fieldStyle="form-control"
-                                        required="false"
-                                        itemValue="#{var}"
-                                        itemLabel="#{var}" 
-                                        hidePleaseSelectMessage="false"/>
-                                        
-                                    <intranda:formInputCheckBoxAjax
-                                        id="checkIncludeProcesses"
-                                        label="#{msgs.plugin_workflow_projectexport_includeFinishedProcesses}"
-                                        field="#{NavigationForm.workflowPlugin.includeAllFinishedProcesses}"
-                                        help="#{msgs.help_institution_allowAllRulesets}"
-                                        name="checkIncludeProcesses"
-                                        ajaxEvent="change"
-                                        ajaxRender="projectExportForm"
-                                       />
-                                </div>
+        <ui:fragment rendered="#{LoginForm.hasRole('Plugin_Goobi_ProjectExport')}">
+            <h:form id="projectExportForm">
+                
+                <intranda:box
+                    boxType="action"
+                    boxPadding="false"
+                    boxForm="true"
+                    icon="fa-plug"
+                    title="#{msgs[NavigationForm.workflowPlugin.title]}">
+                    
+                    <intranda:formInputDropDownAjax
+                        ajaxEvent="change"
+                        ajaxRender="projectExportForm"
+                        label="#{msgs.projekt}"
+                        field="#{NavigationForm.workflowPlugin.projectName}"
+                        help=""
+                        name="project"
+                        selectItems="#{NavigationForm.workflowPlugin.allProjectNames}"
+                        required="false"
+                        itemValue="#{var}"
+                        itemLabel="#{var}" 
+                        hidePleaseSelectMessage="false"/>
+                        
+                    <intranda:formInputCheckBoxAjax
+                        id="checkIncludeProcesses"
+                        label="#{msgs.plugin_workflow_projectexport_includeFinishedProcesses}"
+                        field="#{NavigationForm.workflowPlugin.includeAllFinishedProcesses}"
+                        help="#{msgs.help_institution_allowAllRulesets}"
+                        name="checkIncludeProcesses"
+                        ajaxEvent="change"
+                        ajaxRender="projectExportForm"/>
+                        
+                    <h:panelGroup rendered="#{NavigationForm.workflowPlugin.exportPossible and NavigationForm.workflowPlugin.projectSizeMessage != null}">
+                        <h:outputText
+                            value="#{NavigationForm.workflowPlugin.projectSizeMessage}"
+                            styleClass="alert alert-info m-3 d-block" />
+                    </h:panelGroup>
+                    
+                    <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.stepsComplete and NavigationForm.workflowPlugin.projectValidationError != null}">
+                        <h:outputText
+                            value="#{NavigationForm.workflowPlugin.projectValidationError}"
+                            styleClass="alert alert-warning m-3 d-block" />
+                    </h:panelGroup>
 
-                                <h:panelGroup rendered="#{NavigationForm.workflowPlugin.exportPossible and NavigationForm.workflowPlugin.projectSizeMessage != null}">
-                                    <h:outputText
-                                        value="#{NavigationForm.workflowPlugin.projectSizeMessage}"
-                                        styleClass="alert alert-info block text-center" style="margin-top:10px; padding:10px;" />
-                                </h:panelGroup>
-                                
-                                <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.stepsComplete and NavigationForm.workflowPlugin.projectValidationError != null}">
-                                    <h:outputText
-                                        value="#{NavigationForm.workflowPlugin.projectValidationError}"
-                                        styleClass="alert alert-warning block text-center" style="margin-top:10px; padding:10px;" />
-                                </h:panelGroup>
-
-                                <h:panelGroup
-                                    styleClass="form-actions"
-                                    rendered="#{NavigationForm.workflowPlugin.exportPossible}">
-                                    <h:commandLink
-                                        styleClass="btn btn-primary submitOnEnter pull-right font-size-s margin-top-regular"
-                                        id="export"
-                                        type="submit"
-                                        action="#{NavigationForm.workflowPlugin.prepareExport}">
-                                        <i class="fa #{NavigationForm.workflowPlugin.allowZipDownload?'fa-download':'fa-globe'} margin-right-5"></i>
-                                        <h:outputText value="#{msgs.exportFiles}" />
-                                    </h:commandLink>
-                                </h:panelGroup>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                            </h:form>
-        </h:panelGroup>
-
-
+                    <h:panelGroup
+                        styleClass="form-actions"
+                        rendered="#{NavigationForm.workflowPlugin.exportPossible}">
+                        <h:commandLink
+                            styleClass="btn btn-primary submitOnEnter"
+                            id="export"
+                            type="submit"
+                            action="#{NavigationForm.workflowPlugin.prepareExport}">
+                            <i class="fa #{NavigationForm.workflowPlugin.allowZipDownload?'fa-download':'fa-globe'}"></i>
+                            <span>
+                                <h:outputText value="#{msgs.exportFiles}" />
+                            </span>
+                        </h:commandLink>
+                    </h:panelGroup>
+                </intranda:box>
+            </h:form>
+        </ui:fragment>
     </composite:implementation>
 
 </ui:composition>

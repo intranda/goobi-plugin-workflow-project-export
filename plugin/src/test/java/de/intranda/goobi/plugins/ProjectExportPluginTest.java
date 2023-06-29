@@ -48,7 +48,7 @@ import ugh.fileformats.mets.MetsMods;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MetadatenHelper.class, VariableReplacer.class, ConfigPlugins.class, StepManager.class, ConfigurationHelper.class,
-        ProcessManager.class, CloseStepHelper.class })
+    ProcessManager.class, CloseStepHelper.class })
 @PowerMockIgnore({ "javax.management.*" })
 public class ProjectExportPluginTest {
 
@@ -319,7 +319,7 @@ public class ProjectExportPluginTest {
         prop.setProzess(process);
         prop.setTitel(name);
         prop.setWert(value);
-        prop.setType(PropertyType.String);
+        prop.setType(PropertyType.STRING);
         return prop;
     }
 

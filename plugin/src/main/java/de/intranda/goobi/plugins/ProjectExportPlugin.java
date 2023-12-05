@@ -508,10 +508,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                                 recordToImport.getSubFieldValues("100", null, null, "a", "b", "c");
                                                         List<String> otherVariants =
                                                                 recordToImport.getSubFieldValues("400", null, null, "a", "b", "c");
-                                                        if (normalizedVariant != null) {
+                                                        if (normalizedVariant != null && !normalizedVariant.isEmpty()) {
                                                             publisherLat = normalizedVariant.get(0);
                                                         }
-                                                        if (otherVariants != null) {
+                                                        if (otherVariants != null && !otherVariants.isEmpty()) {
                                                             StringBuilder sb = new StringBuilder();
                                                             for (String spelling : otherVariants) {
                                                                 if (sb.length() > 0) {
@@ -529,8 +529,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                         }
                                     }
                                 }
-                                //                        } else if (md.getType().getName().equals("PublisherHeb")) {
-                                //                            publisherHeb = md.getValue();
                             } else if ("NLICatalog".equals(md.getType().getName())) {
                                 nliLink = md.getValue();
                             } else if ("AdditionalAuthor".equals(md.getType().getName())) {

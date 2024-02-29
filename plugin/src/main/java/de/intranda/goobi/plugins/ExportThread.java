@@ -79,32 +79,22 @@ public class ExportThread extends Thread {
         // create zip file
         log.info("Create zip file for project {}. ", projectName);
         Path zipFileName = Paths.get(exportFolder, projectName + ".zip");
-        OutputStream fos = null;
-        ZipOutputStream out = null;
-        try {
-            if (StorageProvider.getInstance().isFileExists(zipFileName)) {
+
+        if (StorageProvider.getInstance().isFileExists(zipFileName)) {
+            try {
                 StorageProvider.getInstance().deleteFile(zipFileName);
+            } catch (IOException e) {
+                log.error(e);
             }
-            fos = Files.newOutputStream(zipFileName);
-            out = new ZipOutputStream(fos);
+        }
+        try (OutputStream fos = Files.newOutputStream(zipFileName);
+                ZipOutputStream out = new ZipOutputStream(fos)) {
             Path project = Paths.get(exportFolder, projectName);
             zipFolder("", project, out);
             out.flush();
 
         } catch (IOException e) {
             log.error(e);
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (IOException e) {
-                log.error(e);
-            }
-
         }
 
     }
@@ -124,14 +114,14 @@ public class ExportThread extends Thread {
                     String p = zipBasePath + entry.getFileName() + "/";
                     zipFolder(p, entry, out);
                 } else {
-                    InputStream in = StorageProvider.getInstance().newInputStream(entry);
-                    out.putNextEntry(new ZipEntry(zipBasePath + entry.getFileName().toString()));
-                    byte[] b = new byte[1024];
-                    int count;
-                    while ((count = in.read(b)) > 0) {
-                        out.write(b, 0, count);
+                    try (InputStream in = StorageProvider.getInstance().newInputStream(entry)) {
+                        out.putNextEntry(new ZipEntry(zipBasePath + entry.getFileName().toString()));
+                        byte[] b = new byte[1024];
+                        int count;
+                        while ((count = in.read(b)) > 0) {
+                            out.write(b, 0, count);
+                        }
                     }
-                    in.close();
                 }
             }
         }

@@ -259,15 +259,17 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             try {
                 config = xmlConfig.configurationAt("//config[./project = '*']");
             } catch (IllegalArgumentException e1) {
-
+                // do nothing
             }
         }
-        finishStepName = config.getString("/finishedStepName");
-        closeStepName = config.getString("/closeStepName");
-        imageFolder = config.getString("/imageFolder", "media");
-        allowZipDownload = config.getBoolean("/allowZipDownload", true);
-        if (StringUtils.isBlank(exportFolder)) {
-            exportFolder = config.getString("/exportDirectory");
+        if (config != null) {
+            finishStepName = config.getString("/finishedStepName");
+            closeStepName = config.getString("/closeStepName");
+            imageFolder = config.getString("/imageFolder", "media");
+            allowZipDownload = config.getBoolean("/allowZipDownload", true);
+            if (StringUtils.isBlank(exportFolder)) {
+                exportFolder = config.getString("/exportDirectory");
+            }
         }
     }
 
@@ -375,15 +377,14 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                     List<String> filenames = StorageProvider.getInstance().list(process.getImagesTifDirectory(false));
 
                     if (!filenames.isEmpty()) {
-                        //                if (physical.getAllChildren() != null) {
 
                         String censorship = "";
                         String marginalia = "";
                         String provenance = "";
                         String oclcIdentifier = "";
-                        String notes_01 = "";
+                        String notes01 = "";
                         String titleLat = "";
-                        String notes_02 = "";
+                        String notes02 = "";
                         String copies = "";
                         String title = "";
                         String identifier = "";
@@ -397,7 +398,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         String cityOther = "";
 
                         String publisherLat = "";
-                        //                    String publisherHeb = "";
                         String publisherOther = "";
                         String nliLink = "";
 
@@ -428,9 +428,9 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             } else if ("OclcID".equals(md.getType().getName())) {
                                 oclcIdentifier = md.getValue();
                             } else if ("Notes01".equals(md.getType().getName())) {
-                                notes_01 = md.getValue();
+                                notes01 = md.getValue();
                             } else if ("Notes02".equals(md.getType().getName())) {
-                                notes_02 = md.getValue();
+                                notes02 = md.getValue();
                             } else if ("shelfmarksource".equals(md.getType().getName()) && StringUtils.isNotBlank(md.getValue())) {
                                 shelfmark = md.getValue();
                             } else if ("AuthorPreferred".equals(md.getType().getName())) {
@@ -459,7 +459,24 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                     vocabRecordUrl = vocabRecordUrl.substring(0, vocabRecordUrl.lastIndexOf("/"));
                                     String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
                                     VocabRecord vr = VocabularyManager.getRecord(Integer.parseInt(vocabRecordID), Integer.parseInt(vocabID));
+
                                     if (vr != null) {
+                                        // check if this is the correct record, maybe the ID links to a different record now
+                                        for (Field f : vr.getFields()) {
+                                            if (!"Corrected value".equals(f.getDefinition().getLabel())) {
+                                                String correctedValue = f.getValue();
+                                                if (!publisherLat.equals(correctedValue)) {
+                                                    // if not, search for correct value
+
+                                                    List<VocabRecord> records =
+                                                            VocabularyManager.findExactRecords("Publishers", publisherLat, "Corrected value");
+                                                    if (!records.isEmpty()) {
+                                                        vr = records.get(0);
+                                                    }
+                                                }
+                                            }
+                                        }
+
                                         String url = null;
                                         String value = null;
                                         for (Field f : vr.getFields()) {
@@ -571,7 +588,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             // Clarification: As selected in the workflow by the cataloguer
                             // Example: N
                             imageRow.createCell(2)
-                            .setCellValue(StringUtils.isNotBlank(representative) && representative.equals(physPageNo) ? "Y" : "N");
+                                    .setCellValue(StringUtils.isNotBlank(representative) && representative.equals(physPageNo) ? "Y" : "N");
                             // Field: order
                             // Comments:
                             // Clarification: Generated by Goobi from the process title
@@ -621,7 +638,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             // Comments: is taken from the 260 field in OCLC or compiled by the cataloguer if missing
                             // Clarification: This is the imprint field which will be taken from the OCLC record under field 260 (for the majority of the time) or 264 if there is no information in the 260 field
                             // Example: Manṭovah :  Be-vet Yehudah Shemuʼel mi-Prushah u-veno,   [386] 1626.
-                            imageRow.createCell(12).setCellValue(notes_01);
+                            imageRow.createCell(12).setCellValue(notes01);
                             // Field: Normalised Year
                             // Comments: should be taken from the 008 field in the NLI record
                             // Clarification: To be taken from the NLI ALMA bibliographic record from field 008
@@ -651,7 +668,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                             // Comments: IT IS COMPILED BY THE CATALOGUER ACCORDING TO THE COPY INFORMATION
                             // Clarification: This is an area for the cataloguer to record any notes as needed in Goobi workflow
                             // Example: Missing pages.
-                            imageRow.createCell(18).setCellValue(notes_02);
+                            imageRow.createCell(18).setCellValue(notes02);
                             // Field: Link 1 NLI catalog
                             // Comments:
                             // Clarification: This is the link to the NLI ALMA catalogue record for the book. Goobi to automatically generate it by combining standard URL prefix with the NLI ALMA number in field K above
@@ -801,7 +818,6 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                 facesContext.responseComplete();
             } catch (IOException e) {
                 log.error(e);
-            } finally {
             }
         } else {
             Helper.setMeldung("Export started, this might run a while. Check the export folder for results.");
@@ -814,16 +830,5 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
             thread.setWaitforThread(createExcelAndCloseThread);
             thread.start();
         }
-    }
-
-    public static void main(String[] args) {
-        String vocabRecordUrl = "http://localhost:8080/goobi/api/vocabulary/records/3/14";
-        String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
-        vocabRecordUrl = vocabRecordUrl.substring(0, vocabRecordUrl.lastIndexOf("/"));
-        String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
-        int vid = Integer.parseInt(vocabID);
-        int vrid = Integer.parseInt(vocabRecordID);
-        System.out.println(vocabID + " - " + vid);
-        System.out.println(vocabRecordID + " - " + vrid);
     }
 }

@@ -1,0 +1,28 @@
+<config_plugin>
+
+    <!-- Do not change or remove, it is used in junit tests -->
+    <config>
+        <project>SampleProject</project>
+        <finishedStepName>closed step</finishedStepName>
+        <closeStepName>test step to close</closeStepName>
+        <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
+        <allowZipDownload>false</allowZipDownload>
+    </config>
+
+    <!-- sample configuration -->
+    <config>
+        <!-- name of the project, can be repeated. Use * for any project -->
+        <project>*</project>
+        <!-- check if all proceses of the project have finished this task -->
+        <finishedStepName>Metadata enrichment</finishedStepName>
+        <!-- close this step after the export was successful -->
+        <closeStepName>Export</closeStepName>
+        <!-- define which image folder (master|media|jpeg|source|...) shall be used for the export -->
+        <imageFolder>media</imageFolder>
+        <!-- write the export into this directory -->
+        <exportDirectory>/opt/digiverso/viewer/hotfolder</exportDirectory>
+        <!--  define if the export result shall be provided as zip file for download -->
+        <allowZipDownload>true</allowZipDownload>
+    </config>
+
+</config_plugin>

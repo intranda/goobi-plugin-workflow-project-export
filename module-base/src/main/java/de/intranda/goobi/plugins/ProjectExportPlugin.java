@@ -21,7 +21,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -449,7 +449,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                 city = md.getValue();
                             } else if ("PlaceOfPublicationOther".equals(md.getType().getName())) {
                                 cityOther = md.getValue();
-                            } else if ("Publisher".equals(md.getType().getName())) {
+                            } else if ("Publisher".equals(md.getType().getName()) && StringUtils.isBlank(publisherLat)) {
                                 publisherLat = md.getValue();
 
                                 // once we found the publisher name get other writing forms from Vocabulary

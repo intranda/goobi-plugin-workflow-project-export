@@ -31,7 +31,6 @@ import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
-import org.goobi.vocabulary.Field;
 import org.goobi.vocabulary.VocabRecord;
 
 import de.intranda.digiverso.normdataimporter.NormDataImporter;
@@ -254,7 +253,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         //        3.) project name matches and step name is *
         //        4.) project name and step name are *
         try {
-            config = xmlConfig.configurationAt("//config[./project = '" + projectName + "']");
+            config = xmlConfig.configurationAt("//config[./project = '" + projectName.replace("'", "\\'") + "']");
         } catch (IllegalArgumentException e) {
             try {
                 config = xmlConfig.configurationAt("//config[./project = '*']");

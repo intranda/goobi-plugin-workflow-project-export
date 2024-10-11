@@ -17,6 +17,10 @@ import java.util.zip.ZipOutputStream;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import io.goobi.workflow.api.vocabulary.APIException;
+import io.goobi.workflow.api.vocabulary.VocabularyAPIManager;
+import io.goobi.workflow.api.vocabulary.VocabularyRecordAPI;
+import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabularyRecord;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -31,7 +35,6 @@ import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
-import org.goobi.vocabulary.VocabRecord;
 
 import de.intranda.digiverso.normdataimporter.NormDataImporter;
 import de.intranda.digiverso.normdataimporter.model.MarcRecord;
@@ -47,7 +50,6 @@ import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.persistence.managers.MySQLHelper;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.ProjectManager;
-import de.sub.goobi.persistence.managers.VocabularyManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -454,39 +456,34 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                 // once we found the publisher name get other writing forms from Vocabulary
                                 String vocabRecordUrl = md.getAuthorityValue();
                                 if (vocabRecordUrl != null && vocabRecordUrl.length() > 0) {
-                                    String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
-                                    vocabRecordUrl = vocabRecordUrl.substring(0, vocabRecordUrl.lastIndexOf("/"));
-                                    String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
-                                    VocabRecord vr = VocabularyManager.getRecord(Integer.parseInt(vocabRecordID), Integer.parseInt(vocabID));
+                                    VocabularyRecordAPI api = VocabularyAPIManager.getInstance().vocabularyRecords();
 
-                                    if (vr != null) {
-                                        // check if this is the correct record, maybe the ID links to a different record now
-                                        for (Field f : vr.getFields()) {
-                                            if (!"Corrected value".equals(f.getDefinition().getLabel())) {
-                                                String correctedValue = f.getValue();
-                                                if (!publisherLat.equals(correctedValue)) {
-                                                    // if not, search for correct value
+                                    try {
+                                        ExtendedVocabularyRecord rec = api.get(vocabRecordUrl);
+                                        // TODO: Why checking for NOT "Corrected value"??
+//                                        String correctedValue = rec.getFieldValueForDefinitionName("Correc")
 
-                                                    List<VocabRecord> records =
-                                                            VocabularyManager.findExactRecords("Publishers", publisherLat, "Corrected value");
-                                                    if (!records.isEmpty()) {
-                                                        vr = records.get(0);
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        // TODO: weird logic
+//                                        for (Field f : vr.getFields()) {
+//                                            if (!"Corrected value".equals(f.getDefinition().getLabel())) {
+//                                                String correctedValue = f.getValue();
+//                                                if (!publisherLat.equals(correctedValue)) {
+//                                                    // if not, search for correct value
+//
+//                                                    List<VocabRecord> records =
+//                                                            VocabularyManager.findExactRecords("Publishers", publisherLat, "Corrected value");
+//                                                    if (!records.isEmpty()) {
+//                                                        vr = records.get(0);
+//                                                    }
+//                                                }
+//                                            }
+//                                        }
 
                                         String url = null;
                                         String value = null;
-                                        for (Field f : vr.getFields()) {
-                                            if ("Name variants".equals(f.getDefinition().getLabel())) {
-                                                publisherOther = f.getValue();
-                                            } else if ("Authority URI".equals(f.getDefinition().getLabel())) {
-                                                url = f.getValue();
-                                            } else if ("Value URI".equals(f.getDefinition().getLabel())) {
-                                                value = f.getValue();
-                                            }
-                                        }
+                                        publisherOther = rec.getFieldValueForDefinitionName("Name variants").orElse("what-to-do-with-empty-values?!");
+                                        url = rec.getFieldValueForDefinitionName("Authority URI").orElse("what-to-do-with-empty-values?!");
+                                        value = rec.getFieldValueForDefinitionName("Value URI").orElse("what-to-do-with-empty-values?!");
 
                                         if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(value) && url.contains("viaf")) {
                                             url = url + value + "/marc21.xml";
@@ -543,6 +540,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                 }
                                             }
                                         }
+                                    } catch (APIException e) {
+                                        log.warn("Unable to find referenced vocabulary record \"{}\"", vocabRecordUrl);
                                     }
                                 }
                             } else if ("NLICatalog".equals(md.getType().getName())) {

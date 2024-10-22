@@ -11,15 +11,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import io.goobi.vocabulary.exchange.FieldDefinition;
+import io.goobi.vocabulary.exchange.VocabularySchema;
 import io.goobi.workflow.api.vocabulary.APIException;
 import io.goobi.workflow.api.vocabulary.VocabularyAPIManager;
 import io.goobi.workflow.api.vocabulary.VocabularyRecordAPI;
+import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabulary;
 import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabularyRecord;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -459,31 +463,60 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                     VocabularyRecordAPI api = VocabularyAPIManager.getInstance().vocabularyRecords();
 
                                     try {
-                                        ExtendedVocabularyRecord rec = api.get(vocabRecordUrl);
-                                        // TODO: Why checking for NOT "Corrected value"??
-//                                        String correctedValue = rec.getFieldValueForDefinitionName("Correc")
+                                        ExtendedVocabularyRecord rec = null;
+                                        boolean searchAgain = false;
+                                        try {
+                                            rec = api.get(vocabRecordUrl);
+                                            Optional<String> correctedValue = rec.getFieldValueForDefinitionName("Corrected value");
 
-                                        // TODO: weird logic
-//                                        for (Field f : vr.getFields()) {
-//                                            if (!"Corrected value".equals(f.getDefinition().getLabel())) {
-//                                                String correctedValue = f.getValue();
-//                                                if (!publisherLat.equals(correctedValue)) {
-//                                                    // if not, search for correct value
-//
-//                                                    List<VocabRecord> records =
-//                                                            VocabularyManager.findExactRecords("Publishers", publisherLat, "Corrected value");
-//                                                    if (!records.isEmpty()) {
-//                                                        vr = records.get(0);
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
+                                            if (correctedValue.isEmpty()) {
+                                                continue;
+                                            } else if (!correctedValue.get().equals(publisherLat)) {
+                                                searchAgain = true;
+                                            }
+                                        } catch (APIException e) {
+                                            // Possibly not found, go directly to fallback
+                                            searchAgain = true;
+                                        }
+
+                                        if (searchAgain) {
+                                            ExtendedVocabulary publishersVocabulary = VocabularyAPIManager.getInstance().vocabularies().findByName("Publishers");
+                                            VocabularySchema schema = VocabularyAPIManager.getInstance().vocabularySchemas().get(publishersVocabulary.getSchemaId());
+                                            Optional<Long> correctedValueDefinitionId = schema.getDefinitions().stream()
+                                                    .filter(d -> d.getName().equals("Corrected value"))
+                                                    .map(FieldDefinition::getId)
+                                                    .findFirst();
+
+                                            if (correctedValueDefinitionId.isEmpty()) {
+                                                log.error("Unable to find definition id for field \"Corrected value\"");
+                                                continue;
+                                            } else {
+                                                List<ExtendedVocabularyRecord> hits = VocabularyAPIManager.getInstance().vocabularyRecords()
+                                                        .list(publishersVocabulary.getId())
+                                                        .search(correctedValueDefinitionId.get() + ":" + publisherLat)
+                                                        .all()
+                                                        .request()
+                                                        .getContent();
+
+                                                if (hits.size() == 1) {
+                                                    rec = hits.get(0);
+                                                } else {
+                                                    log.error("Search result for publisher \"{}\" not existing or not unique, skipping", publisherLat);
+                                                    continue;
+                                                }
+                                            }
+                                        }
+
+                                        if (rec == null) {
+                                            log.error("This should have been prevented!");
+                                            continue;
+                                        }
 
                                         String url = null;
                                         String value = null;
-                                        publisherOther = rec.getFieldValueForDefinitionName("Name variants").orElse("what-to-do-with-empty-values?!");
-                                        url = rec.getFieldValueForDefinitionName("Authority URI").orElse("what-to-do-with-empty-values?!");
-                                        value = rec.getFieldValueForDefinitionName("Value URI").orElse("what-to-do-with-empty-values?!");
+                                        publisherOther = rec.getFieldValueForDefinitionName("Name variants").orElse("");
+                                        url = rec.getFieldValueForDefinitionName("Authority URI").orElse("");
+                                        value = rec.getFieldValueForDefinitionName("Value URI").orElse("");
 
                                         if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(value) && url.contains("viaf")) {
                                             url = url + value + "/marc21.xml";

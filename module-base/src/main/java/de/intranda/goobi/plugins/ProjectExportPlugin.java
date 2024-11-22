@@ -11,12 +11,20 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import io.goobi.vocabulary.exchange.FieldDefinition;
+import io.goobi.vocabulary.exchange.VocabularySchema;
+import io.goobi.workflow.api.vocabulary.APIException;
+import io.goobi.workflow.api.vocabulary.VocabularyAPIManager;
+import io.goobi.workflow.api.vocabulary.VocabularyRecordAPI;
+import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabulary;
+import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabularyRecord;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -31,8 +39,6 @@ import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
-import org.goobi.vocabulary.Field;
-import org.goobi.vocabulary.VocabRecord;
 
 import de.intranda.digiverso.normdataimporter.NormDataImporter;
 import de.intranda.digiverso.normdataimporter.model.MarcRecord;
@@ -48,7 +54,6 @@ import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.persistence.managers.MySQLHelper;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.ProjectManager;
-import de.sub.goobi.persistence.managers.VocabularyManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -254,7 +259,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         //        3.) project name matches and step name is *
         //        4.) project name and step name are *
         try {
-            config = xmlConfig.configurationAt("//config[./project = '" + projectName + "']");
+            config = xmlConfig.configurationAt("//config[./project = '" + projectName.replace("'", "\\'") + "']");
         } catch (IllegalArgumentException e) {
             try {
                 config = xmlConfig.configurationAt("//config[./project = '*']");
@@ -455,39 +460,63 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                 // once we found the publisher name get other writing forms from Vocabulary
                                 String vocabRecordUrl = md.getAuthorityValue();
                                 if (vocabRecordUrl != null && vocabRecordUrl.length() > 0) {
-                                    String vocabID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
-                                    vocabRecordUrl = vocabRecordUrl.substring(0, vocabRecordUrl.lastIndexOf("/"));
-                                    String vocabRecordID = vocabRecordUrl.substring(vocabRecordUrl.lastIndexOf("/") + 1);
-                                    VocabRecord vr = VocabularyManager.getRecord(Integer.parseInt(vocabRecordID), Integer.parseInt(vocabID));
+                                    VocabularyRecordAPI api = VocabularyAPIManager.getInstance().vocabularyRecords();
 
-                                    if (vr != null) {
-                                        // check if this is the correct record, maybe the ID links to a different record now
-                                        for (Field f : vr.getFields()) {
-                                            if (!"Corrected value".equals(f.getDefinition().getLabel())) {
-                                                String correctedValue = f.getValue();
-                                                if (!publisherLat.equals(correctedValue)) {
-                                                    // if not, search for correct value
+                                    try {
+                                        ExtendedVocabularyRecord rec = null;
+                                        boolean searchAgain = false;
+                                        try {
+                                            rec = api.get(vocabRecordUrl);
+                                            Optional<String> correctedValue = rec.getFieldValueForDefinitionName("Corrected value");
 
-                                                    List<VocabRecord> records =
-                                                            VocabularyManager.findExactRecords("Publishers", publisherLat, "Corrected value");
-                                                    if (!records.isEmpty()) {
-                                                        vr = records.get(0);
-                                                    }
+                                            if (correctedValue.isEmpty()) {
+                                                continue;
+                                            } else if (!correctedValue.get().equals(publisherLat)) {
+                                                searchAgain = true;
+                                            }
+                                        } catch (APIException e) {
+                                            // Possibly not found, go directly to fallback
+                                            searchAgain = true;
+                                        }
+
+                                        if (searchAgain) {
+                                            ExtendedVocabulary publishersVocabulary = VocabularyAPIManager.getInstance().vocabularies().findByName("Publishers");
+                                            VocabularySchema schema = VocabularyAPIManager.getInstance().vocabularySchemas().get(publishersVocabulary.getSchemaId());
+                                            Optional<Long> correctedValueDefinitionId = schema.getDefinitions().stream()
+                                                    .filter(d -> d.getName().equals("Corrected value"))
+                                                    .map(FieldDefinition::getId)
+                                                    .findFirst();
+
+                                            if (correctedValueDefinitionId.isEmpty()) {
+                                                log.error("Unable to find definition id for field \"Corrected value\"");
+                                                continue;
+                                            } else {
+                                                List<ExtendedVocabularyRecord> hits = VocabularyAPIManager.getInstance().vocabularyRecords()
+                                                        .list(publishersVocabulary.getId())
+                                                        .search(correctedValueDefinitionId.get() + ":" + publisherLat)
+                                                        .all()
+                                                        .request()
+                                                        .getContent();
+
+                                                if (hits.size() == 1) {
+                                                    rec = hits.get(0);
+                                                } else {
+                                                    log.error("Search result for publisher \"{}\" not existing or not unique, skipping", publisherLat);
+                                                    continue;
                                                 }
                                             }
                                         }
 
+                                        if (rec == null) {
+                                            log.error("This should have been prevented!");
+                                            continue;
+                                        }
+
                                         String url = null;
                                         String value = null;
-                                        for (Field f : vr.getFields()) {
-                                            if ("Name variants".equals(f.getDefinition().getLabel())) {
-                                                publisherOther = f.getValue();
-                                            } else if ("Authority URI".equals(f.getDefinition().getLabel())) {
-                                                url = f.getValue();
-                                            } else if ("Value URI".equals(f.getDefinition().getLabel())) {
-                                                value = f.getValue();
-                                            }
-                                        }
+                                        publisherOther = rec.getFieldValueForDefinitionName("Name variants").orElse("");
+                                        url = rec.getFieldValueForDefinitionName("Authority URI").orElse("");
+                                        value = rec.getFieldValueForDefinitionName("Value URI").orElse("");
 
                                         if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(value) && url.contains("viaf")) {
                                             url = url + value + "/marc21.xml";
@@ -544,6 +573,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                 }
                                             }
                                         }
+                                    } catch (APIException e) {
+                                        log.warn("Unable to find referenced vocabulary record \"{}\"", vocabRecordUrl);
                                     }
                                 }
                             } else if ("NLICatalog".equals(md.getType().getName())) {

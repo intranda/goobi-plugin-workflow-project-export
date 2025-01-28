@@ -3,7 +3,7 @@
 		<exec executable="mvn">
 			<arg value="package"/>
 		</exec>
-		<copy file="module-main/target/plugin_intranda_workflow_projectexport.jar" todir="/opt/digiverso/goobi/plugins/workflow/"/>
-		<copy file="module-gui/target/plugin_intranda_workflow_projectexport-GUI.jar" todir="/opt/digiverso/goobi/plugins/GUI/"/>
+        <copy file="module-base/target/plugin-workflow-project-export-base.jar" todir="/opt/digiverso/goobi/plugins/workflow/" overwrite="true"/>
+        <copy file="module-gui/target/plugin-workflow-project-export-gui.jar" todir="/opt/digiverso/goobi/plugins/GUI/" overwrite="true"/>
 	</target>
 </project>

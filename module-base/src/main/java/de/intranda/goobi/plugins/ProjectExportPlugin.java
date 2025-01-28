@@ -15,16 +15,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-
-import io.goobi.vocabulary.exchange.FieldDefinition;
-import io.goobi.vocabulary.exchange.VocabularySchema;
-import io.goobi.workflow.api.vocabulary.APIException;
-import io.goobi.workflow.api.vocabulary.VocabularyAPIManager;
-import io.goobi.workflow.api.vocabulary.VocabularyRecordAPI;
-import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabulary;
-import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabularyRecord;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -54,6 +44,15 @@ import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.persistence.managers.MySQLHelper;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.ProjectManager;
+import io.goobi.vocabulary.exchange.FieldDefinition;
+import io.goobi.vocabulary.exchange.VocabularySchema;
+import io.goobi.workflow.api.vocabulary.APIException;
+import io.goobi.workflow.api.vocabulary.VocabularyAPIManager;
+import io.goobi.workflow.api.vocabulary.VocabularyRecordAPI;
+import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabulary;
+import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabularyRecord;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -480,10 +479,13 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                         }
 
                                         if (searchAgain) {
-                                            ExtendedVocabulary publishersVocabulary = VocabularyAPIManager.getInstance().vocabularies().findByName("Publishers");
-                                            VocabularySchema schema = VocabularyAPIManager.getInstance().vocabularySchemas().get(publishersVocabulary.getSchemaId());
-                                            Optional<Long> correctedValueDefinitionId = schema.getDefinitions().stream()
-                                                    .filter(d -> d.getName().equals("Corrected value"))
+                                            ExtendedVocabulary publishersVocabulary =
+                                                    VocabularyAPIManager.getInstance().vocabularies().findByName("Publishers");
+                                            VocabularySchema schema =
+                                                    VocabularyAPIManager.getInstance().vocabularySchemas().get(publishersVocabulary.getSchemaId());
+                                            Optional<Long> correctedValueDefinitionId = schema.getDefinitions()
+                                                    .stream()
+                                                    .filter(d -> "Corrected value".equals(d.getName()))
                                                     .map(FieldDefinition::getId)
                                                     .findFirst();
 
@@ -491,7 +493,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                 log.error("Unable to find definition id for field \"Corrected value\"");
                                                 continue;
                                             } else {
-                                                List<ExtendedVocabularyRecord> hits = VocabularyAPIManager.getInstance().vocabularyRecords()
+                                                List<ExtendedVocabularyRecord> hits = VocabularyAPIManager.getInstance()
+                                                        .vocabularyRecords()
                                                         .list(publishersVocabulary.getId())
                                                         .search(correctedValueDefinitionId.get() + ":" + publisherLat)
                                                         .all()
@@ -501,7 +504,8 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                                                 if (hits.size() == 1) {
                                                     rec = hits.get(0);
                                                 } else {
-                                                    log.error("Search result for publisher \"{}\" not existing or not unique, skipping", publisherLat);
+                                                    log.error("Search result for publisher \"{}\" not existing or not unique, skipping",
+                                                            publisherLat);
                                                     continue;
                                                 }
                                             }

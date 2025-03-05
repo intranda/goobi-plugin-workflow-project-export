@@ -5,7 +5,7 @@
     xmlns:h="http://xmlns.jcp.org/jsf/html"
     xmlns:f="http://xmlns.jcp.org/jsf/core"
     xmlns:x="http://myfaces.apache.org/tomahawk"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:p="http://primefaces.org/ui">
 
@@ -21,14 +21,14 @@
 
         <ui:fragment rendered="#{LoginForm.hasRole('Plugin_Goobi_ProjectExport')}">
             <h:form id="projectExportForm">
-                
+
                 <intranda:box
                     boxType="action"
                     boxPadding="false"
                     boxForm="true"
                     icon="fa-plug"
                     title="#{msgs[NavigationForm.workflowPlugin.title]}">
-                    
+
                     <intranda:formInputDropDownAjax
                         ajaxEvent="change"
                         ajaxRender="projectExportForm"
@@ -39,9 +39,9 @@
                         selectItems="#{NavigationForm.workflowPlugin.allProjectNames}"
                         required="false"
                         itemValue="#{var}"
-                        itemLabel="#{var}" 
+                        itemLabel="#{var}"
                         hidePleaseSelectMessage="false"/>
-                        
+
                     <intranda:formInputCheckBoxAjax
                         id="checkIncludeProcesses"
                         label="#{msgs.plugin_workflow_projectexport_includeFinishedProcesses}"
@@ -50,13 +50,13 @@
                         name="checkIncludeProcesses"
                         ajaxEvent="change"
                         ajaxRender="projectExportForm"/>
-                        
+
                     <h:panelGroup rendered="#{NavigationForm.workflowPlugin.exportPossible and NavigationForm.workflowPlugin.projectSizeMessage != null}">
                         <h:outputText
                             value="#{NavigationForm.workflowPlugin.projectSizeMessage}"
                             styleClass="alert alert-info m-3 d-block" />
                     </h:panelGroup>
-                    
+
                     <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.stepsComplete and NavigationForm.workflowPlugin.projectValidationError != null}">
                         <h:outputText
                             value="#{NavigationForm.workflowPlugin.projectValidationError}"

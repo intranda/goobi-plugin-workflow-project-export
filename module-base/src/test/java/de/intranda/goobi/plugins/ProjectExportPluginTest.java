@@ -246,7 +246,7 @@ public class ProjectExportPluginTest {
     public Process getProcess() {
         Project project = createProject();
 
-        Process process = new Process();
+        process = new Process();
         process.setTitel("RM0166F01-0000001");
         process.setProjekt(project);
         process.setId(1);

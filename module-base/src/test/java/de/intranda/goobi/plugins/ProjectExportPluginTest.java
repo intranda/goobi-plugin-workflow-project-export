@@ -18,8 +18,9 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
+import org.goobi.beans.GoobiProperty;
+import org.goobi.beans.GoobiProperty.PropertyOwnerType;
 import org.goobi.beans.Process;
-import org.goobi.beans.Processproperty;
 import org.goobi.beans.Project;
 import org.goobi.beans.Step;
 import org.goobi.beans.User;
@@ -228,7 +229,7 @@ public class ProjectExportPluginTest {
             createProcessDirectory(processDirectory);
         } catch (IOException e) {
         }
-        List<Processproperty> properties = createProperties();
+        List<GoobiProperty> properties = createProperties();
         if (id == 2) {
             properties.add(createProperty("NLI_Number", "990010890590205171"));
         } else if (id == 3) {
@@ -245,7 +246,7 @@ public class ProjectExportPluginTest {
     public Process getProcess() {
         Project project = createProject();
 
-        Process process = new Process();
+        process = new Process();
         process.setTitel("RM0166F01-0000001");
         process.setProjekt(project);
         process.setId(1);
@@ -256,7 +257,7 @@ public class ProjectExportPluginTest {
             createProcessDirectory(processDirectory);
         } catch (IOException e) {
         }
-        List<Processproperty> properties = createProperties();
+        List<GoobiProperty> properties = createProperties();
 
         properties.add(createProperty("notes_01", "Manṭovah :  Be-vet Yehudah Shemuʼel mi-Prushah u-veno,   [386] 1626."));
         properties.add(createProperty("NLI_Number", "990012587030205171"));
@@ -264,8 +265,8 @@ public class ProjectExportPluginTest {
         return process;
     }
 
-    private List<Processproperty> createProperties() {
-        List<Processproperty> properties = new ArrayList<>();
+    private List<GoobiProperty> createProperties() {
+        List<GoobiProperty> properties = new ArrayList<>();
 
         properties.add(createProperty("Marginalia", "N"));
         properties.add(createProperty("Censorship", "N"));
@@ -316,11 +317,11 @@ public class ProjectExportPluginTest {
         return steps;
     }
 
-    private Processproperty createProperty(String name, String value) {
-        Processproperty prop = new Processproperty();
-        prop.setProzess(process);
-        prop.setTitel(name);
-        prop.setWert(value);
+    private GoobiProperty createProperty(String name, String value) {
+        GoobiProperty prop = new GoobiProperty(PropertyOwnerType.PROCESS);
+        prop.setOwner(process);
+        prop.setPropertyName(name);
+        prop.setPropertyValue(value);
         prop.setType(PropertyType.STRING);
         return prop;
     }

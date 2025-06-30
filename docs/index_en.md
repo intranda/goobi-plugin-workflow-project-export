@@ -68,7 +68,7 @@ After selecting the desired project, two buttons are available depending on the 
 
 The export result is structured in such a way that for each process a subfolder is created within which the corresponding images from the defined directory are located. In addition, an Excel file is created.
 
-![Structure of an exported Excel file with all associated metadata per image](screen5.png)
+![Structure of an exported Excel file with all associated metadata per media file](screen5.png)
 
 Within each line of this Excel file there is now the respective metadata that was read from the METS file, whereby these are listed redundantly for each image repeatedly.
 

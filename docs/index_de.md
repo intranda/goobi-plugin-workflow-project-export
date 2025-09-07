@@ -3,6 +3,10 @@ title: Projektexport als Ordner mit Bildern und Excel-Datei
 identifier: intranda_workflow_projectexport
 description: Dieses Workflow Plugin erlaubt einen Export eines gesamten Projektes in eine Verzeichnisstruktur mit einer Excel-Datei und den zugehörigen Bildern gemäß spezifischer Projektvorgaben
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Workflow Plugin
 ---
 ## Einführung
 Dieses Workflow Plugin erlaubt einen sehr spezifischen Export eines gesamten Projektes. Hierfür prüft das Plugin zunächst, ob in allen Vorgängen des gewählten Projektes auch tatsächlich der konfigurierte Arbeitsschritt im Workflow bereits abgeschlossen wurde. Abhängig von dieser Prüfung erlaubt das Plugin anschließend einen Export aller Bilder eines definierten Bildverzeichnisses (z.B. die Master-Bilder) und einen Export definierter Metadaten innerhalb einer Excel-Datei. Der Aufbau der Excel-Datei ist dabei so, dass pro Bild die jeweiligen Metadaten redundant jeweils in einer eigenen Zeile aufgeführt sind.

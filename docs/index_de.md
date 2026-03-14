@@ -11,7 +11,7 @@ keywords:
 ## Einführung
 Dieses Workflow Plugin erlaubt einen sehr spezifischen Export eines gesamten Projektes. Hierfür prüft das Plugin zunächst, ob in allen Vorgängen des gewählten Projektes auch tatsächlich der konfigurierte Arbeitsschritt im Workflow bereits abgeschlossen wurde. Abhängig von dieser Prüfung erlaubt das Plugin anschließend einen Export aller Bilder eines definierten Bildverzeichnisses (z.B. die Master-Bilder) und einen Export definierter Metadaten innerhalb einer Excel-Datei. Der Aufbau der Excel-Datei ist dabei so, dass pro Bild die jeweiligen Metadaten redundant jeweils in einer eigenen Zeile aufgeführt sind.
 
-Sollte die anfängliche Prüfung feststellen, dass der konfigurierte Arbeitsschritt im Workflow bereits für alle Vorgänge des Projekte abgeschlossen wurde, so wird der konfigurierte Export-Arbeitsschritt für alle Vorgänge des Projektes ebenfalls auf abgeschlossen gesetzt
+Sollte die anfängliche Prüfung feststellen, dass der konfigurierte Arbeitsschritt im Workflow bereits für alle Vorgänge des Projektes abgeschlossen wurde, so wird der konfigurierte Export-Arbeitsschritt für alle Vorgänge des Projektes ebenfalls auf abgeschlossen gesetzt
 
 
 ## Installation
@@ -69,7 +69,7 @@ Nach der Auswahl des gewünschten Projektes stehen je nach Konfiguration zwei Bu
 
 ![Aufbau des Verzeichnisses nach Durchführung des Exports](screen4.png)
 
-Das Exportergebnis ist so aufgebaut, dass für jeden Vorgang ein Unterordner erzeugt wird innerhalb dessen sich die zugehörigen Bilder aus dem definierten Verzeichnnis befinden. Darüber hinaus wird ausserdem eine Excel-Datei erzeugt.
+Das Exportergebnis ist so aufgebaut, dass für jeden Vorgang ein Unterordner erzeugt wird innerhalb dessen sich die zugehörigen Bilder aus dem definierten Verzeichnis befinden. Darüber hinaus wird ausserdem eine Excel-Datei erzeugt.
 
 ![Aufbau einer exportierten Exceldatei mit allen zugehörigen Metadaten pro Bild](screen5.png)
 

@@ -36,7 +36,7 @@ The content of this configuration file looks like this:
     <config>
         <!-- name of the project, can be repeated. Use * for any project -->
         <project>*</project>
-        <!-- check if all proceses of the project have finished this task -->
+        <!-- check if all processes of the project have finished this task -->
         <finishedStepName>Metadata enrichment</finishedStepName>
         <!-- close this step after the export was successful -->
         <closeStepName>Export</closeStepName>

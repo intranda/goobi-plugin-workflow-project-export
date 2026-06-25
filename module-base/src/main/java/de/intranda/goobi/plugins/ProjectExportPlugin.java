@@ -15,6 +15,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -24,8 +27,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.goobi.beans.GoobiProperty;
 import org.goobi.beans.Process;
+import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
@@ -51,8 +54,6 @@ import io.goobi.workflow.api.vocabulary.VocabularyAPIManager;
 import io.goobi.workflow.api.vocabulary.VocabularyRecordAPI;
 import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabulary;
 import io.goobi.workflow.api.vocabulary.helper.ExtendedVocabularyRecord;
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -378,7 +379,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         }
                     }
                     // create row for each image
-                    List<String> filenames = StorageProvider.getInstance().list(process.getImagesTifDirectory(false));
+                    List<String> filenames = StorageProvider.getInstance().list(process.getConfiguredImageFolder(imageFolder));
 
                     if (!filenames.isEmpty()) {
 
@@ -405,17 +406,17 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
                         String publisherOther = "";
                         String nliLink = "";
 
-                        for (GoobiProperty prop : process.getProperties()) {
-                            if ("Censorship".equals(prop.getPropertyName())) {
-                                censorship = prop.getPropertyValue();
-                            } else if ("Marginalia".equals(prop.getPropertyName())) {
-                                marginalia = prop.getPropertyValue();
-                            } else if ("Provenance".equals(prop.getPropertyName())) {
-                                provenance = prop.getPropertyValue();
-                            } else if ("Number of Copies".equals(prop.getPropertyName())) {
-                                copies = prop.getPropertyValue();
-                            } else if ("NLI_Number".equals(prop.getPropertyName())) {
-                                identifier = prop.getPropertyValue();
+                        for (Processproperty prop : process.getEigenschaften()) {
+                            if ("Censorship".equals(prop.getTitel())) {
+                                censorship = prop.getWert();
+                            } else if ("Marginalia".equals(prop.getTitel())) {
+                                marginalia = prop.getWert();
+                            } else if ("Provenance".equals(prop.getTitel())) {
+                                provenance = prop.getWert();
+                            } else if ("Number of Copies".equals(prop.getTitel())) {
+                                copies = prop.getWert();
+                            } else if ("NLI_Number".equals(prop.getTitel())) {
+                                identifier = prop.getWert();
                             }
 
                         }

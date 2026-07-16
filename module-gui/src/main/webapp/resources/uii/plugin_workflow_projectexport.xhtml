@@ -7,7 +7,8 @@
     xmlns:x="http://myfaces.apache.org/tomahawk"
     xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-    xmlns:p="http://primefaces.org/ui">
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:util="http://goobi.io/util">
 
     <composite:interface>
     </composite:interface>
@@ -26,7 +27,7 @@
                     boxType="action"
                     boxPadding="false"
                     boxForm="true"
-                    icon="fa-plug"
+                    icon="plug"
                     title="#{msgs[NavigationForm.workflowPlugin.title]}">
 
                     <intranda:formInputDropDownAjax
@@ -71,10 +72,7 @@
                             id="export"
                             type="submit"
                             action="#{NavigationForm.workflowPlugin.prepareExport}">
-                            <i class="fa #{NavigationForm.workflowPlugin.allowZipDownload?'fa-download':'fa-globe'}"></i>
-                            <span>
-                                <h:outputText value="#{msgs.exportFiles}" />
-                            </span>
+                            <util:icon-text icon="#{NavigationForm.workflowPlugin.allowZipDownload?'download':'world'}" text="#{msgs.exportFiles}" />
                         </h:commandLink>
                     </h:panelGroup>
                 </intranda:box>

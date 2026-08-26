@@ -15,12 +15,7 @@
 
     <composite:implementation>
 
-        <h:outputText
-            styleClass="alert alert-danger d-block"
-            value="#{msgs.noAccessAllowed} Plugin_Goobi_ProjectExport"
-            rendered="#{!LoginForm.hasRole('Plugin_Goobi_ProjectExport')}" />
-
-        <ui:fragment rendered="#{LoginForm.hasRole('Plugin_Goobi_ProjectExport')}">
+        <util:missing-rights rights="Plugin_Goobi_ProjectExport">
             <h:form id="projectExportForm">
 
                 <intranda:box
@@ -52,17 +47,17 @@
                         ajaxEvent="change"
                         ajaxRender="projectExportForm"/>
 
-                    <h:panelGroup rendered="#{NavigationForm.workflowPlugin.exportPossible and NavigationForm.workflowPlugin.projectSizeMessage != null}">
-                        <h:outputText
-                            value="#{NavigationForm.workflowPlugin.projectSizeMessage}"
-                            styleClass="alert alert-info m-3 d-block" />
-                    </h:panelGroup>
+                    <util:alert
+                        type="info"
+                        message="#{NavigationForm.workflowPlugin.projectSizeMessage}"
+                        styleClass="m-3 d-block"
+                        rendered="#{NavigationForm.workflowPlugin.exportPossible and NavigationForm.workflowPlugin.projectSizeMessage != null}" />
 
-                    <h:panelGroup rendered="#{!NavigationForm.workflowPlugin.stepsComplete and NavigationForm.workflowPlugin.projectValidationError != null}">
-                        <h:outputText
-                            value="#{NavigationForm.workflowPlugin.projectValidationError}"
-                            styleClass="alert alert-warning m-3 d-block" />
-                    </h:panelGroup>
+                    <util:alert
+                        type="warning"
+                        message="#{NavigationForm.workflowPlugin.projectValidationError}"
+                        styleClass="m-3 d-block"
+                        rendered="#{!NavigationForm.workflowPlugin.stepsComplete and NavigationForm.workflowPlugin.projectValidationError != null}" />
 
                     <h:panelGroup
                         styleClass="form-actions"
@@ -77,7 +72,7 @@
                     </h:panelGroup>
                 </intranda:box>
             </h:form>
-        </ui:fragment>
+        </util:missing-rights>
     </composite:implementation>
 
 </ui:composition>

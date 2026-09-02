@@ -11,7 +11,7 @@
   <artifactId>plugin-workflow-project-export</artifactId>
   <version>24.12.1</version>
   <properties>
-    <revision>dev-SNAPSHOT</revision>
+    <revision>26.08</revision>
   </properties>
   <packaging>pom</packaging>
   <modules>

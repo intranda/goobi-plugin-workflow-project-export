@@ -109,6 +109,10 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
     @Getter
     private boolean allowZipDownload = true;
 
+    @Getter
+    @Setter
+    private boolean includeImages = true;
+
     // used for tests
     @Setter
     private boolean testDatabase;
@@ -770,7 +774,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
 
                             rowCounter = rowCounter + 1;
                         }
-                        if (allowZipDownload) {
+                        if (allowZipDownload && includeImages) {
                             // export images
                             Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));
                             Path target = Paths.get(exportFolder, projectName, process.getTitel());
@@ -858,6 +862,7 @@ public class ProjectExportPlugin implements IWorkflowPlugin {
         } else {
             Helper.setMeldung("Export started, this might run a while. Check the export folder for results.");
             ExportThread thread = new ExportThread();
+            thread.setIncludeImages(includeImages);
             thread.setExportFolder(exportFolder);
             thread.setImageFolder(imageFolder);
             thread.setProjectName(projectName);

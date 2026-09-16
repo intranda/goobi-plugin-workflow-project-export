@@ -46,6 +46,15 @@
                         name="checkIncludeProcesses"
                         ajaxEvent="change"
                         ajaxRender="projectExportForm"/>
+                    
+                    <intranda:formInputCheckBoxAjax
+                        id="checkIncludeImages"
+                        label="Include images"
+                        field="#{NavigationForm.workflowPlugin.includeImages}"
+                        help="Include images"
+                        name="checkIncludeImages"
+                        ajaxEvent="change"
+                        ajaxRender="projectExportForm"/>                        
 
                     <util:alert
                         type="info"

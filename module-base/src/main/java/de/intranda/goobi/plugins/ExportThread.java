@@ -38,6 +38,9 @@ public class ExportThread extends Thread {
     @Setter
     private Thread waitforThread;
 
+    @Setter
+    private boolean includeImages;
+
     @Override
     public void run() {
         if (waitforThread != null) {
@@ -57,22 +60,25 @@ public class ExportThread extends Thread {
                     continue processloop;
                 }
             }
-            log.debug("Export files for process {}", process.getTitel());
-            try {
-                List<String> filenames = StorageProvider.getInstance().list(process.getConfiguredImageFolder(imageFolder));
-                log.debug("Copy {} files.", filenames.size());
-                if (!filenames.isEmpty()) {
 
-                    Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));
-                    Path target = Paths.get(exportFolder, projectName, process.getTitel());
-                    if (!Files.exists(target)) {
-                        Files.createDirectories(target);
+            if (includeImages) {
+                log.debug("Export files for process {}", process.getTitel());
+                try {
+                    List<String> filenames = StorageProvider.getInstance().list(process.getConfiguredImageFolder(imageFolder));
+                    log.debug("Copy {} files.", filenames.size());
+                    if (!filenames.isEmpty()) {
+
+                        Path source = Paths.get(process.getConfiguredImageFolder(imageFolder));
+                        Path target = Paths.get(exportFolder, projectName, process.getTitel());
+                        if (!Files.exists(target)) {
+                            Files.createDirectories(target);
+                        }
+                        StorageProvider.getInstance().copyDirectory(source, target);
+
                     }
-                    StorageProvider.getInstance().copyDirectory(source, target);
-
+                } catch (IOException | SwapException | DAOException e) {
+                    log.error(e);
                 }
-            } catch (IOException | SwapException | DAOException e) {
-                log.error(e);
             }
         }
 
